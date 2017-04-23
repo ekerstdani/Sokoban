@@ -1,0 +1,93 @@
+package GameLogic;
+
+import java.awt.Graphics;
+import java.util.Scanner;
+
+import applicationWindow.ClientLogic;
+import applicationWindow.RenderPanel;
+import applicationWindow.RenderPanel.Direction;
+/**
+ * represents a piece of furniture in the sppoky house game
+ * @author thomasalex2
+ *
+ */
+public class Furniture extends ImmovableObject {
+	private Direction facingDirection;
+	/**
+	 * makes a new furniture object with the given name and direction it is facing
+	 * @param name
+	 * @param d
+	 */
+	public Furniture(String name, Direction d){
+		super(name);
+		facingDirection = d;
+	}
+
+	/**
+	 * draws the piece of furniture based on the name it has and the direction it is being viewed from
+	 */
+	@Override
+	public void draw(Graphics g,Direction view, int x, int y){
+		Direction viewDirection = ClientLogic.getObjectViewDirection(view, facingDirection);
+		if(super.getName().equals("table")){
+			g.drawImage(ClientLogic.tableImage,x,y,Room.TILELENGTH,Room.TILEHEIGHT,null);
+		}
+		else if(super.getName().equals("couch")){
+			viewDirection = ClientLogic.getObjectViewDirection(view,facingDirection);
+			if(viewDirection == Direction.NORTH){
+				g.drawImage(ClientLogic.couchBack,x,y,Room.TILELENGTH,Room.TILEHEIGHT,null);
+			}else if(viewDirection == Direction.WEST){
+				g.drawImage(ClientLogic.couchRight,x,y,Room.TILELENGTH,Room.TILEHEIGHT,null);
+			}else if(viewDirection == Direction.EAST){
+				g.drawImage(ClientLogic.couchLeft,x,y,Room.TILELENGTH,Room.TILEHEIGHT,null);
+			}else if(viewDirection == Direction.SOUTH){
+				g.drawImage(ClientLogic.couchFront,x,y,Room.TILELENGTH,Room.TILEHEIGHT,null);
+			}
+
+		}
+		else if(super.getName().equals("bookcase")){
+			viewDirection = ClientLogic.getObjectViewDirection(view,facingDirection);
+			if(viewDirection == Direction.NORTH){
+				g.drawImage(ClientLogic.BookcaseBack,x,y-Room.TILEHEIGHT,Room.TILELENGTH,Room.TILEHEIGHT*2,null);
+			}else if(viewDirection == Direction.WEST){
+				g.drawImage(ClientLogic.BookcaseSide,x,y-Room.TILEHEIGHT,Room.TILELENGTH,Room.TILEHEIGHT*2,null);
+			}else if(viewDirection == Direction.EAST){
+				g.drawImage(ClientLogic.BookcaseSide,x,y-Room.TILEHEIGHT,Room.TILELENGTH,Room.TILEHEIGHT*2,null);
+			}else if(viewDirection == Direction.SOUTH){
+				g.drawImage(ClientLogic.BookcaseFront,x,y-Room.TILEHEIGHT,Room.TILELENGTH,Room.TILEHEIGHT*2,null);
+			}
+
+
+
+		}
+		else if(super.getName().equals("chair")){
+			viewDirection = ClientLogic.getObjectViewDirection(view,facingDirection);
+			if(viewDirection == Direction.NORTH){
+				g.drawImage(ClientLogic.chairBack,x,y,Room.TILELENGTH,Room.TILEHEIGHT,null);
+			}else if(viewDirection == Direction.WEST){
+				g.drawImage(ClientLogic.chairRight,x,y,Room.TILELENGTH,Room.TILEHEIGHT,null);
+			}else if(viewDirection == Direction.EAST){
+				g.drawImage(ClientLogic.chairLeft,x,y,Room.TILELENGTH,Room.TILEHEIGHT,null);
+			}else if(viewDirection == Direction.SOUTH){
+				g.drawImage(ClientLogic.chairFront,x,y,Room.TILELENGTH,Room.TILEHEIGHT,null);
+			}
+
+		}
+	}
+	/**
+	 * returns a string representation of the furniture object
+	 */
+	@Override
+	public String toString(){
+		String furnitureString = "FU " + " " + super.getName() + " " + facingDirection.toString();
+		return furnitureString;
+	}
+	/**
+	 * returns a Furniture object from a string based on the toString method above
+	 * @param s
+	 * @return
+	 */
+	public static Furniture loadFromScanner(Scanner s){
+		return new Furniture(s.next(), Direction.valueOf(s.next()));
+	}
+}

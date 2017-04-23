@@ -1,0 +1,41 @@
+package Sokoban;
+
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter.DEFAULT;
+
+public class Area extends GUI{
+	private static final String PATH = "src/Images/";
+	
+	public void drawArea(Graphics g){
+		try {
+			for(int i=0; i<drawing.getWidth();i++){
+				for(int j=0; i<drawing.getHeight();j++){
+					
+				}
+			}
+			BufferedImage area = ImageIO.read(new File(PATH+"GroundGravel_Concrete.png"));
+			g.drawImage(area,0,0,30,30, drawing);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	protected void redraw(Graphics g) {
+		drawArea(g);
+		
+	}
+
+	@Override
+	protected void onMove(Move m) {
+		// TODO Auto-generated method stub
+		
+	}
+
+}

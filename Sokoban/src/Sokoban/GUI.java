@@ -30,6 +30,8 @@ public abstract class GUI {
 	private static final int DEFULT_DRAWING_WIDTH = 800;
 	private static final int TEXT_OUTPUT_ROWS = 5;
 	private static final int INPUT_COl = 15;
+	private static int imageWidth = 35;
+	private static int imageHeight = 40;
 	
 	//Variables for the GUI
 	private JFrame frame;
@@ -68,8 +70,9 @@ public abstract class GUI {
 	 * This calls the Initialise() to set up the GUI
 	 */
 	public GUI(){
+		imageWidth = 35;
+		imageHeight = 40;
 		initialise();
-		
 	}
 	
 	
@@ -80,9 +83,6 @@ public abstract class GUI {
 	 */
 	@SuppressWarnings("serial")
 	private void initialise() {
-		Sokoban.setImageHeight(40);
-		Sokoban.setImageWidth(35);
-		
 		JButton quit = new JButton("Quit");
 		quit.addActionListener(new ActionListener(){
 			/*
@@ -91,28 +91,30 @@ public abstract class GUI {
 			@Override
 			public void actionPerformed(ActionEvent ev) {
 				int dialogButton = JOptionPane.YES_NO_OPTION;
-				int dialogResult = JOptionPane.showConfirmDialog(frame, "Are you sure you want to exit", "Exit", dialogButton);
-				if(dialogResult == 0){
-				System.exit(0);
+				int dialogResult = JOptionPane.showConfirmDialog(frame, "Are you sure you want to Exit", "Exit", dialogButton);
+				if(dialogResult == 0) {
+					System.exit(0);
 				}
 			}
 		});
 		
+		//Restart Button
 		JButton restart = new JButton("Restart");
 		restart.addActionListener(new ActionListener(){
-			
+			/*
+			 * Will exit the GUI when the "Quit" Button is Pressed
+			 */
 			@Override
 			public void actionPerformed(ActionEvent ev) {
-				//Confirm Reset
 				int dialogButton = JOptionPane.YES_NO_OPTION;
 				int dialogResult = JOptionPane.showConfirmDialog(frame, "Are you sure you want to restart", "Restart", dialogButton);
-				if(dialogResult == 0){
+				if(dialogResult == 0) {
 					frame.removeAll();
-					frame.validate();
-					frame.setVisible(false);
-					initialise();
+		            frame.validate();
+		            frame.setVisible(false);
+		            initialise();
+					
 				}
-				
 			}
 		});
 		

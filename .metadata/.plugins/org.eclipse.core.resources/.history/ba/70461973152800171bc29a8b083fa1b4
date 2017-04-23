@@ -1,0 +1,10 @@
+package GameLogic;
+
+import java.awt.Graphics;
+
+import applicationWindow.RenderPanel;
+
+public interface WorldObject {
+
+	public void draw(Graphics g, RenderPanel.Direction d, int x, int y);
+}

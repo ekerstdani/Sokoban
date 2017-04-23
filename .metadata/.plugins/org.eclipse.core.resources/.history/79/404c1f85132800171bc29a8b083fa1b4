@@ -1,0 +1,28 @@
+package Sokoban;
+
+public class Character {
+	String name;
+	private int xPos;
+	private int yPos;
+	
+	public Character(String name){
+ 		this.name = name;
+	}
+
+	
+	
+	
+	
+	
+	//Helper Methods
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	
+
+}

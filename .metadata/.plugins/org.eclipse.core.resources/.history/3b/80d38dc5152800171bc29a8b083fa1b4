@@ -1,0 +1,180 @@
+
+
+import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
+
+import javax.swing.JPanel;
+
+import GameLogic.Room;
+/**
+ *
+ * @author ekerstdani
+ *	The renderPanel for the game
+ */
+public class RenderPanel extends JPanel implements MouseMotionListener {
+	private Point mousePoint = new Point(0, 0);
+	private Room room;
+	private Direction viewDirection = Direction.NORTH;
+	private ApplicationWindow parent;
+
+	/**
+	 * Constructor for the Rendering Panel
+	 * @param a is the Application Window
+	 */
+
+	public RenderPanel(ApplicationWindow a) {
+		super();
+		parent = a;
+		addMouseListener(a);
+	}
+
+	/**
+	 *
+	 *
+	 */
+	public void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		if (room != null) {
+			room.draw(g, viewDirection);
+		}
+
+		setupBoard();
+
+	}
+	/**
+	 *The four different directions that the  objects/room can view
+	 */
+
+	public enum Direction {
+		SOUTH, NORTH, EAST, WEST
+	}
+
+	/**
+	 *
+	 * Updates the current room
+	 * @param r is the room that is being updated
+	 */
+	public void updateRoom(Room r) {
+		room = r;
+	}
+
+	/**
+	 * Sets the old direction of the renderPanel to the new Direction
+	 * @param direction
+	 */
+	public void setViewDirection(Direction direction) {
+
+		viewDirection = direction;
+
+	}
+
+	public void setupBoard() {
+
+	}
+
+	public void setMousePoint(Point point) {
+		mousePoint = point;
+
+	}
+
+	/**
+	 * Gets the room name of the room beinjg called.
+	 *
+	 * @return a string, if the room isnt null will return the Rooms name, else will return a string that says "No room"
+	 */
+	public String getRoomName() {
+		if (room != null) {
+			return room.getName();
+		} else {
+			return "No room";
+		}
+	}
+
+
+	/**
+	 *
+	 * @return  the direction as a string format
+	 */
+	public String getDirection() {
+		return viewDirection.toString();
+	}
+
+
+	/**
+	 * Divides the rendering panel up and then assigns coordiantes for each section.
+	 * @param point
+	 * @return the coordiante of the tile
+	 */
+	public Point getcord(Point point) {
+		mousePoint = point;
+
+		if (viewDirection == Direction.NORTH || viewDirection == Direction.SOUTH) {
+			for (int i = 0; i < room.getHeight(); i++) {
+				for (int j = 0; j < room.getWidth(); j++) {
+					if (mousePoint.x > (Room.TILELENGTH * j) && mousePoint.x < (Room.TILELENGTH * j) + Room.TILELENGTH && mousePoint.y > (Room.TILEHEIGHT * i) && mousePoint.y < (Room.TILEHEIGHT * i) + Room.TILEHEIGHT) {
+
+						return new Point(room.getRotatedX(viewDirection, j), room.getRotatedY(viewDirection, i));
+					}
+				}
+			}
+		} else {
+			for (int i = 0; i < room.getWidth(); i++) {
+				for (int j = 0; j < room.getHeight(); j++) {
+					if (mousePoint.x > (Room.TILEHEIGHT * j) && mousePoint.x < (Room.TILEHEIGHT * j) + Room.TILEHEIGHT && mousePoint.y > (Room.TILELENGTH * i) && mousePoint.y < (Room.TILELENGTH * i) + Room.TILELENGTH) {
+
+						return new Point(room.getRotatedX(viewDirection, i), room.getRotatedY(viewDirection, j));
+					}
+				}
+			}
+		}
+		System.out.println(room.getName());
+		return null;
+
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent e) {
+
+
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e) {
+
+
+	}
+	/**
+	 *This method makes the direction = the correct new direction after the screen has rotated either
+	 *left or right, depending on which button has been pressed.
+	 *
+	 * @param dir is the direction of the button that is pressed on screen to know what way to rotate the screen
+	 */
+	public void moveDirection(String dir) {
+		if (dir.equals("left")) {
+			if (viewDirection == Direction.EAST) {
+				viewDirection = Direction.SOUTH;
+			} else if (viewDirection == Direction.SOUTH) {
+				viewDirection = Direction.WEST;
+			} else if (viewDirection == Direction.WEST) {
+				viewDirection = Direction.NORTH;
+			} else if (viewDirection == Direction.NORTH) {
+				viewDirection = Direction.EAST;
+			}
+
+		} else if (dir.equals("right")) {
+			if (viewDirection == Direction.EAST) {
+				viewDirection = Direction.NORTH;
+			} else if (viewDirection == Direction.SOUTH) {
+				viewDirection = Direction.EAST;
+			} else if (viewDirection == Direction.WEST) {
+				viewDirection = Direction.SOUTH;
+			} else if (viewDirection == Direction.NORTH) {
+				viewDirection = Direction.WEST;
+			}
+		}
+
+	}
+
+}

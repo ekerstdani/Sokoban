@@ -1,0 +1,169 @@
+package GameLogic;
+
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.Scanner;
+
+import javax.imageio.ImageIO;
+
+import applicationWindow.ClientLogic;
+import applicationWindow.RenderPanel;
+import applicationWindow.RenderPanel.Direction;
+/**
+ * A representation of a human controlled player in the spooky house game
+ * @author thomasalex2
+ *
+ */
+public class HumanPlayer extends Character {
+	private int id;
+	private Inventory inventory;
+	private Direction facingDirection;
+	/**
+	 * makes a new representation of a player that is controlled by a human making a brand new Inventory
+	 * @param id
+	 * @param name
+	 */
+	public HumanPlayer(int id, String name){
+		super(name);
+		this.id = id;
+		inventory = new Inventory();
+
+	}
+	/**
+	 * makes a new representation of a player that is controlled by a human but gets a given Inventory
+	 * @param id
+	 * @param name
+	 * @param i
+	 */
+	public HumanPlayer(int id, String name, Inventory i){
+		super(name);
+		this.id = id;
+		inventory = i;
+
+	}
+
+	/**
+	 * draws the player on the screen at the given coordinates based on the direction of the player
+	 * and the current viewing direction
+	 */
+	@Override
+	public void draw(Graphics g, Direction d, int x, int y) {
+		// TODO Auto-generated method stub
+		Direction viewDirection = ClientLogic.getObjectViewDirection(d,facingDirection);
+		if(viewDirection == Direction.NORTH){
+			g.drawImage(ClientLogic.playerUpImage,x,y-Room.TILEHEIGHT,Room.TILELENGTH,Room.TILEHEIGHT*2,null);
+		}else if(viewDirection == Direction.WEST){
+			g.drawImage(ClientLogic.playerLeftImage,x,y-Room.TILEHEIGHT,Room.TILELENGTH,Room.TILEHEIGHT*2,null);
+		}else if(viewDirection == Direction.EAST){
+			g.drawImage(ClientLogic.playerRightImage,x,y-Room.TILEHEIGHT,Room.TILELENGTH,Room.TILEHEIGHT*2,null);
+		}else if(viewDirection == Direction.SOUTH){
+			g.drawImage(ClientLogic.playerDownImage,x,y-Room.TILEHEIGHT,Room.TILELENGTH,Room.TILEHEIGHT*2,null);
+		}
+
+
+	}
+	/**
+	 * returns whether the player can add an item
+	 * @return
+	 */
+	public boolean canAddItem(){
+		return !inventory.full();
+	}
+	/**
+	 * adds an item to the players inventory
+	 * Assumes that the player has space to add it
+	 * @param item
+	 */
+	public void addItem(Item item){
+		inventory.add(item);
+	}
+	/**
+	 * changes the direction that the player is facing based on a move from one coordinate to another
+	 * @param oldX
+	 * @param oldY
+	 * @param newX
+	 * @param newY
+	 */
+	public void changeDirection(int oldX, int oldY, int newX, int newY){
+		if(oldX < newX){
+			setFacingDirection(Direction.EAST);
+		}else if(oldX > newX){
+			setFacingDirection(Direction.WEST);
+		}else if(oldY < newY){
+			setFacingDirection(Direction.SOUTH);
+		}else{
+			setFacingDirection(Direction.NORTH);
+		}
+	}
+	/**
+	 * returns the players inventory
+	 * @return
+	 */
+	public Inventory getInventory(){
+		return inventory;
+	}
+	/**
+	 * gets an item from the players inventory at the current index
+	 * Assumes that there is an item at the given inventory
+	 * @param index
+	 * @return
+	 */
+	public Item getItemAt(int index){
+		return inventory.getItemAt(index);
+	}
+	/**
+	 * removes and returns the item at the given index in the players inventory
+	 * Assumes that there is an item at the given index
+	 * @param index
+	 * @return
+	 */
+	public Item removeItemAt(int index){
+		return inventory.removeItem(index);
+	}
+	/**
+	 * returns the players ID
+	 * @return
+	 */
+	public int getId(){
+		return id;
+	}
+	/**
+	 * sets the direction of the player based on the given String
+	 * Assumes that the given String is NORTH, SOUTH, EAST or WEST
+	 * @param s
+	 */
+	public void SetFacingDirectionFromString(String s){
+		facingDirection = Direction.valueOf(s);
+	}
+	/**
+	 * sets the direction of the player based on the given direction
+	 * @param d
+	 */
+	public void setFacingDirection(Direction d){
+		facingDirection = d;
+	}
+	/**
+	 * returns a string representation of this player and the players inventory
+	 */
+	@Override
+	public String toString(){
+		String playerString = "HP " + id + " "  +  super.getName() + " " + facingDirection.toString() + " " + inventory.toString();
+		return playerString;
+	}
+	/**
+	 * makes a new player using a given string representation of the player based on the toString method above
+	 * @param s
+	 * @return
+	 */
+	public static HumanPlayer loadFromScanner(Scanner s){
+		int id = s.nextInt();
+		String name = s.next();
+		String dir = s.next();
+		Inventory inventory = Inventory.loadFromScanner(s);
+		HumanPlayer newPlayer = new HumanPlayer(id,name,inventory);
+		newPlayer.SetFacingDirectionFromString(dir);
+		return newPlayer;
+	}
+}
