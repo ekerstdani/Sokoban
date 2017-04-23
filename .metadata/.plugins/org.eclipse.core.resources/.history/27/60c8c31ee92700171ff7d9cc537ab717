@@ -1,9 +1,0 @@
-package Sokoban;
-
-public class Sokoban {
-	
-	public void onMove(Move m){
-		
-	}
-
-}
