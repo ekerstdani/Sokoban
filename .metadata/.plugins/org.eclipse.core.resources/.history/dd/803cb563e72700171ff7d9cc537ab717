@@ -1,0 +1,25 @@
+package Sokoban;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+public class GUI {
+
+	private static final int DEFULT_DRAWING_HEIGHT = 600;
+	private static final int DEFULT_DRAWING_WIDTH = 800;
+	
+	private JFrame frame;
+	private JPanel controls;
+	
+	
+	public GUI(){
+		initialise();
+	}
+
+	private void initialise() {
+		JButton quit = new JButton("Quit");
+		
+	}
+	
+	
+}

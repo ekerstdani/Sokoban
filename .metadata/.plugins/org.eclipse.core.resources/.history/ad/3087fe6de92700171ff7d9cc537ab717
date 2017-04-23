@@ -1,0 +1,15 @@
+package Sokoban;
+
+import Sokoban.GUI.Move;
+
+public class Sokoban extends GUI {
+	
+	public void onMove(Move m){
+		
+	}
+	
+	public void redraw(Graphics g){
+		
+	}
+
+}

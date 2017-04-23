@@ -1,0 +1,2 @@
+INDEX VERSION 1.127+D:\Sokoban\.metadata\.plugins\org.eclipse.jdt.core
+314893798.index

@@ -1,0 +1,11 @@
+package Sokoban;
+
+public class GUI {
+
+	private static final int DEFULT_DRAWING_HEIGHT = 600;
+	private static final int DEFULT_DRAWING_WIDTH = 800;
+	
+	private JFrame;
+	
+	
+}
