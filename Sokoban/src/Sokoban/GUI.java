@@ -14,6 +14,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -68,6 +69,7 @@ public abstract class GUI {
 	 */
 	public GUI(){
 		initialise();
+		
 	}
 	
 	
@@ -78,6 +80,9 @@ public abstract class GUI {
 	 */
 	@SuppressWarnings("serial")
 	private void initialise() {
+		Sokoban.setImageHeight(40);
+		Sokoban.setImageWidth(35);
+		
 		JButton quit = new JButton("Quit");
 		quit.addActionListener(new ActionListener(){
 			/*
@@ -85,7 +90,29 @@ public abstract class GUI {
 			 */
 			@Override
 			public void actionPerformed(ActionEvent ev) {
+				int dialogButton = JOptionPane.YES_NO_OPTION;
+				int dialogResult = JOptionPane.showConfirmDialog(frame, "Are you sure you want to exit", "Exit", dialogButton);
+				if(dialogResult == 0){
 				System.exit(0);
+				}
+			}
+		});
+		
+		JButton restart = new JButton("Restart");
+		restart.addActionListener(new ActionListener(){
+			
+			@Override
+			public void actionPerformed(ActionEvent ev) {
+				//Confirm Reset
+				int dialogButton = JOptionPane.YES_NO_OPTION;
+				int dialogResult = JOptionPane.showConfirmDialog(frame, "Are you sure you want to restart", "Restart", dialogButton);
+				if(dialogResult == 0){
+					frame.removeAll();
+					frame.validate();
+					frame.setVisible(false);
+					initialise();
+				}
+				
 			}
 		});
 		
@@ -189,6 +216,7 @@ public abstract class GUI {
 		q.setLayout(new GridLayout(2,1));
 		q.setMaximumSize(new Dimension(50,100));
 		q.add(quit);
+		q.add(restart);
 		controls.add(q);
 		
 		//Rigid area, space components out
