@@ -2,11 +2,8 @@ package Sokoban;
 
 import java.awt.Graphics;
 
-import Objects.Area;
-
 public class Sokoban extends GUI {
 	
-	private Area area = new Area();
 	public Sokoban(){}
 	
 	public void onMove(Move m){
@@ -33,7 +30,7 @@ public class Sokoban extends GUI {
 	
 	public void redraw(Graphics g){
 		//Draw The Area
-		area.drawArea(g, drawing);
+		
 		
 	}
 	

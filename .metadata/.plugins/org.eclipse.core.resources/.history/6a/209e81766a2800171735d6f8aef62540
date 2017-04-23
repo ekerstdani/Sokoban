@@ -33,7 +33,7 @@ public class Sokoban extends GUI {
 	
 	public void redraw(Graphics g){
 		//Draw The Area
-		area.drawArea(g, drawing);
+		
 		
 	}
 	
