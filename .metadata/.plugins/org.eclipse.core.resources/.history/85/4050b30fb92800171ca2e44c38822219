@@ -1,0 +1,44 @@
+package Objects;
+
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+import javax.swing.JComponent;
+
+
+public class Player {
+	String name;
+	
+	public Player(String name){
+ 		this.name = name;
+	}
+
+	
+	
+	public void drawChar(Graphics g, JComponent drawing, String PATH, int imageHeight, int imageWidth){
+		
+		try {
+			BufferedImage character = ImageIO.read(new File(PATH+"Character4.png"));
+			g.drawImage(character,0,0,imageWidth,imageHeight, drawing);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
+	//Helper Methods
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	
+
+}

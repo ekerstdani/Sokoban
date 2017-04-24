@@ -6,6 +6,9 @@ import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.util.Scanner;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -49,6 +52,22 @@ public abstract class GUI {
 	};
 	
 	
+	public int getImageW(){
+		return imageWidth;
+	}
+	public int getImageH(){
+		return imageHeight;
+	}
+	public void setImageW(int s){
+		imageWidth =s;
+	}
+	public void setImageH(int s){
+		imageHeight =s;
+	}
+	
+	
+	
+	
 	//These are the methods you need to implement
 	protected abstract void redraw(Graphics g);
 	
@@ -66,12 +85,14 @@ public abstract class GUI {
 		return textOutputArea;
 	}
 	
+	public JTextField getInput(){
+		return input;
+	}
 	/*
 	 * This calls the Initialise() to set up the GUI
 	 */
 	public GUI(){
-		imageWidth = 35;
-		imageHeight = 40;
+		
 		initialise();
 	}
 	
@@ -83,6 +104,9 @@ public abstract class GUI {
 	 */
 	@SuppressWarnings("serial")
 	private void initialise() {
+		setImageW(35);
+		setImageH(40);
+		
 		JButton quit = new JButton("Quit");
 		quit.addActionListener(new ActionListener(){
 			/*
@@ -119,15 +143,6 @@ public abstract class GUI {
 		});
 		
 		
-		input = new JTextField(INPUT_COl);
-		input.setMaximumSize(new Dimension(0,25));
-		input.addActionListener(new ActionListener(){
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				//Not Sure				
-			}
-		});
 		
 		
 		/*
@@ -237,10 +252,6 @@ public abstract class GUI {
 		controls.add(Box.createRigidArea(new Dimension(15,0)));
 		controls.add(Box.createHorizontalGlue());
 		
-		controls.add(new JLabel("User Input"));
-		controls.add(Box.createRigidArea(new Dimension(5,0)));
-		controls.add(input);
-		//Drawing Component 
 		
 		drawing = new JComponent(){
 			protected void paintComponent(Graphics g){
@@ -286,5 +297,8 @@ public abstract class GUI {
 		
 	} //End of Init()
 	
+	public JFrame getFrame(){
+		return frame;
+	}
 	
 }

@@ -1,0 +1,36 @@
+package Objects;
+
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.io.File;
+
+import javax.imageio.ImageIO;
+import javax.swing.JComponent;
+
+
+public class Character {
+	String name;
+	
+	public Character(String name){
+ 		this.name = name;
+	}
+
+	
+	
+	public void drawChar(Graphics g, JComponent drawing){
+		BufferedImage character = ImageIO.read(new File(PATH+"Character4.png"));
+	}
+	
+	
+	//Helper Methods
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	
+
+}

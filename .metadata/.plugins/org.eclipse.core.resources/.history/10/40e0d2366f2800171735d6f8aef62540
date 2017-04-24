@@ -1,0 +1,33 @@
+package Objects;
+
+import java.awt.Graphics;
+
+import javax.swing.JComponent;
+
+
+public class Character {
+	String name;
+	
+	public Character(String name){
+ 		this.name = name;
+	}
+
+	
+	
+	public void drawChar(Graphics g, JComponent drawing){
+		
+	}
+	
+	
+	//Helper Methods
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	
+
+}

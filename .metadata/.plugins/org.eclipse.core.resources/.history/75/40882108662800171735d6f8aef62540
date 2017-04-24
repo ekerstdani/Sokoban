@@ -1,9 +1,0 @@
-package GameLogic;
-
-import java.awt.Graphics;
-	
-
-public interface WorldObject {
-		
-		public void draw(Graphics g, RenderPanel.Direction d, int x, int y);
-	}
