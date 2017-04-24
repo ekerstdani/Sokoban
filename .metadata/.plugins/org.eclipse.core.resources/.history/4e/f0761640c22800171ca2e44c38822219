@@ -1,0 +1,10 @@
+package Rendering;
+
+public class Drawing {
+
+	
+	public Drawing(){
+		
+	}
+	
+}

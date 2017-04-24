@@ -1,0 +1,18 @@
+package Rendering;
+
+import java.awt.Graphics;
+
+import javax.swing.JComponent;
+
+public class Drawing {
+
+	
+	public Drawing(Graphics g, JComponent drawing, String PATH){
+		
+	}
+	
+	public void drawPlayer(int imageHeight, int imageWidth, int xPpos, int yPos){
+		
+	}
+	
+}
