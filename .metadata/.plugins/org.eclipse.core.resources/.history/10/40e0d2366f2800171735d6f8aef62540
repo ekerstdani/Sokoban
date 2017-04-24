@@ -1,4 +1,9 @@
-package Sokoban;
+package Objects;
+
+import java.awt.Graphics;
+
+import javax.swing.JComponent;
+
 
 public class Character {
 	String name;
@@ -9,7 +14,9 @@ public class Character {
 
 	
 	
-	
+	public void drawChar(Graphics g, JComponent drawing){
+		
+	}
 	
 	
 	//Helper Methods

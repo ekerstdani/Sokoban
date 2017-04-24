@@ -1,0 +1,12 @@
+package Objects;
+
+import java.awt.Graphics;
+
+public class Area {
+	
+	public void drawArea(Graphics g){
+		
+		BufferedImage 
+	}
+
+}

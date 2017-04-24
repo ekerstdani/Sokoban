@@ -6,6 +6,9 @@ import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.util.Scanner;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -30,6 +33,8 @@ public abstract class GUI {
 	private static final int DEFULT_DRAWING_WIDTH = 800;
 	private static final int TEXT_OUTPUT_ROWS = 5;
 	private static final int INPUT_COl = 15;
+	private static int imageWidth = 35;
+	private static int imageHeight = 40;
 	
 	//Variables for the GUI
 	private JFrame frame;
@@ -45,6 +50,22 @@ public abstract class GUI {
 	public enum Move {
 		UP, LEFT, DOWN, RIGHT, ZOOM_IN, ZOOM_OUT
 	};
+	
+	
+	public int getImageW(){
+		return imageWidth;
+	}
+	public int getImageH(){
+		return imageHeight;
+	}
+	public void setImageW(int s){
+		imageWidth =s;
+	}
+	public void setImageH(int s){
+		imageHeight =s;
+	}
+	
+	
 	
 	
 	//These are the methods you need to implement
@@ -64,12 +85,15 @@ public abstract class GUI {
 		return textOutputArea;
 	}
 	
+	public JTextField getInput(){
+		return input;
+	}
 	/*
 	 * This calls the Initialise() to set up the GUI
 	 */
 	public GUI(){
-		initialise();
 		
+		initialise();
 	}
 	
 	
@@ -80,8 +104,8 @@ public abstract class GUI {
 	 */
 	@SuppressWarnings("serial")
 	private void initialise() {
-		Sokoban.setImageHeight(40);
-		Sokoban.setImageWidth(35);
+		setImageW(35);
+		setImageH(40);
 		
 		JButton quit = new JButton("Quit");
 		quit.addActionListener(new ActionListener(){
@@ -91,41 +115,34 @@ public abstract class GUI {
 			@Override
 			public void actionPerformed(ActionEvent ev) {
 				int dialogButton = JOptionPane.YES_NO_OPTION;
-				int dialogResult = JOptionPane.showConfirmDialog(frame, "Are you sure you want to exit", "Exit", dialogButton);
-				if(dialogResult == 0){
-				System.exit(0);
+				int dialogResult = JOptionPane.showConfirmDialog(frame, "Are you sure you want to Exit", "Exit", dialogButton);
+				if(dialogResult == 0) {
+					System.exit(0);
 				}
 			}
 		});
 		
+		//Restart Button
 		JButton restart = new JButton("Restart");
 		restart.addActionListener(new ActionListener(){
-			
+			/*
+			 * Will exit the GUI when the "Quit" Button is Pressed
+			 */
 			@Override
 			public void actionPerformed(ActionEvent ev) {
-				//Confirm Reset
 				int dialogButton = JOptionPane.YES_NO_OPTION;
 				int dialogResult = JOptionPane.showConfirmDialog(frame, "Are you sure you want to restart", "Restart", dialogButton);
-				if(dialogResult == 0){
+				if(dialogResult == 0) {
 					frame.removeAll();
-					frame.validate();
-					frame.setVisible(false);
-					initialise();
+		            frame.validate();
+		            frame.setVisible(false);
+		            initialise();
+					
 				}
-				
 			}
 		});
 		
 		
-		input = new JTextField(INPUT_COl);
-		input.setMaximumSize(new Dimension(0,25));
-		input.addActionListener(new ActionListener(){
-
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				//Not Sure				
-			}
-		});
 		
 		
 		/*
@@ -235,10 +252,6 @@ public abstract class GUI {
 		controls.add(Box.createRigidArea(new Dimension(15,0)));
 		controls.add(Box.createHorizontalGlue());
 		
-		controls.add(new JLabel("User Input"));
-		controls.add(Box.createRigidArea(new Dimension(5,0)));
-		controls.add(input);
-		//Drawing Component 
 		
 		drawing = new JComponent(){
 			protected void paintComponent(Graphics g){
@@ -284,5 +297,8 @@ public abstract class GUI {
 		
 	} //End of Init()
 	
+	public JFrame getFrame(){
+		return frame;
+	}
 	
 }
