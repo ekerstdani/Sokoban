@@ -1,0 +1,53 @@
+package Rendering;
+
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+import javax.swing.JComponent;
+
+public class Drawing {
+	private Graphics g;
+	private final String PATH ="src/Images/";
+	
+	public Drawing(Graphics g){
+		this.g=g;
+	}
+	
+	public void drawPlayer(int imageHeight, int imageWidth, int xPos, int yPos, JComponent drawing){
+		try {
+			BufferedImage character = ImageIO.read(new File(PATH+"Character4.png"));
+			g.drawImage(character,xPos,yPos,imageWidth,imageHeight, drawing);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	public void drawArea(int imageHeight, int imageWidth, JComponent drawing){
+		BufferedImage area;
+		try {
+			area = ImageIO.read(new File(PATH+"GroundGravel_Sand.png"));
+			//Loop to fill entire screen
+			for(int i = 0; i < drawing.getWidth(); i+=imageWidth){
+				for(int j = 0; j < drawing.getHeight(); j+=imageHeight){
+					System.out.println(area);
+					System.out.println(drawing);
+					g.drawImage(area,i,j,imageWidth,imageHeight, drawing);
+				}
+			}
+					
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
+	
+	
+	
+	
+}

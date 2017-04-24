@@ -21,13 +21,7 @@ public class Player {
 	
 	public void drawChar(Graphics g, JComponent drawing, String PATH, int imageHeight, int imageWidth){
 		
-		try {
-			BufferedImage character = ImageIO.read(new File(PATH+"Character4.png"));
-			g.drawImage(character,xPos,yPos,imageWidth,imageHeight, drawing);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
 	}
 	
 	

@@ -88,6 +88,7 @@ public abstract class GUI {
 	public JTextField getInput(){
 		return input;
 	}
+	
 	/*
 	 * This calls the Initialise() to set up the GUI
 	 */
