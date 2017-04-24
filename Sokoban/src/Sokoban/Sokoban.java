@@ -20,10 +20,9 @@ public class Sokoban extends GUI {
     
 	//Class Fields
 	
-	private Graphics graphic;
 	private Drawing draw = new Drawing(drawing);
 	private Player p = new Player(" ");
-	
+	private Direction dir = Direction.SOUTH;
 	public enum Direction {
 		NORTH, WEST, EAST, SOUTH
 	};
@@ -35,7 +34,7 @@ public class Sokoban extends GUI {
 		//Get Players Name
 		
 		p.setName(JOptionPane.showInputDialog(getFrame(), "Enter a Username", "Username", JOptionPane.PLAIN_MESSAGE));
-		getTextOutputArea().append("Username is: "+p.getName());
+		getTextOutputArea().append("Username is: "+p.getName() +"\n");
 	}
 	
 	
@@ -43,39 +42,27 @@ public class Sokoban extends GUI {
 	public void onMove(Move m){
 		
 		if(m==Move.LEFT){
-			getTextOutputArea().setText("You Move Left\n");
-			
+			dir=Direction.WEST;
 			if(p.getxPos()>=10){
 				p.setxPos(p.getxPos()-10);
 			}
 			
+			
 		}
 		if(m==Move.RIGHT){
-			getTextOutputArea().setText("You Move Right\n");
+			dir=Direction.EAST;
 			if(p.getxPos()<getFrame().getWidth()-(imageWidth+20)){
 				p.setxPos(p.getxPos()+10);
+				
 			}
 		}
 		
 		if(m==Move.DOWN){
-			getTextOutputArea().setText("You Move Down\n");
+			dir=Direction.SOUTH;
 			
 		}
 		if(m==Move.UP){
-			getTextOutputArea().setText("You Move Up\n");
-			
-		}
-		if(m==Move.ZOOM_IN){
-			
-			getTextOutputArea().setText("You Zoom In\n");
-			setImageW(getImageW()+5);
-			setImageH(getImageH()+5);
-			
-		}
-		if(m==Move.ZOOM_OUT){
-			getTextOutputArea().setText("You Zoom Out\n");
-			setImageW(getImageW()-5);
-			setImageH(getImageH()-5);
+			dir=Direction.NORTH;
 			
 		}
 		
@@ -85,11 +72,8 @@ public class Sokoban extends GUI {
 	
 	public void redraw(Graphics g){
 		//Draw The Area
-		graphic = g;
-		//area.drawArea(g, drawing, PATH, getImageH(), getImageW());
 		draw.drawArea(getImageH(), getImageW(), g);
-		draw.drawPlayer(imageHeight, imageWidth, p.getxPos(), p.getyPos(), g, Direction.SOUTH );
-		//p.drawChar(g, drawing, PATH, getImageH(), getImageW());
+		draw.drawPlayer(imageHeight, imageWidth, p.getxPos(), p.getyPos(), g, dir);
 		
 	}
 	
@@ -100,6 +84,15 @@ public class Sokoban extends GUI {
 		
 		//Main
 		new Sokoban();
+	}
+
+
+
+	@Override
+	protected void changeName() {
+		p.setName(JOptionPane.showInputDialog(getFrame(), "Enter a Username", "Username", JOptionPane.PLAIN_MESSAGE));
+		getTextOutputArea().setText("Username is: "+p.getName() +"\n");
+		
 	}
 
 }

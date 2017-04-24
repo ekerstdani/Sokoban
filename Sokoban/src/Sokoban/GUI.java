@@ -8,11 +8,18 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.IOException;
 import java.util.Scanner;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -20,9 +27,11 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.text.DefaultCaret;
 
@@ -42,13 +51,20 @@ public abstract class GUI {
 	protected JComponent drawing;
 	private JTextArea textOutputArea;
 	private JTextField input;
+	private JLabel groundGravelConcrete;
+	private JLabel groundDirt;
+	private JLabel groundGrass;
+	private JLabel groundSand;
+	private JLabel groundGravelDirt;
+	private JLabel groundGravelGrass;
+	private JLabel groundGravelSand;
 	
 	
 	/*
 	 * Enum of operations that can be used to move the character or map
 	 */
 	public enum Move {
-		UP, LEFT, DOWN, RIGHT, ZOOM_IN, ZOOM_OUT
+		UP, LEFT, DOWN, RIGHT
 	};
 	
 	
@@ -72,8 +88,7 @@ public abstract class GUI {
 	protected abstract void redraw(Graphics g);
 	
 	protected abstract void onMove(Move m);
-	
-	
+	protected abstract void changeName();
 	
 	public void redraw(){
 		frame.repaint();
@@ -195,29 +210,122 @@ public abstract class GUI {
 		});
 		
 		//Zoom In 
-				JButton in = new JButton("+");
-				in.addActionListener( new ActionListener(){
+				JButton reName = new JButton("Change Name");
+				reName.addActionListener( new ActionListener(){
 
 					@Override
 					public void actionPerformed(ActionEvent e) {
-						onMove(Move.ZOOM_IN);
-						redraw();
+						//CHANGE NAME TODO
+						changeName();
 					}
 					
 				});
 		
 		//Zoom Out
-				JButton out = new JButton("\u2012");
+				JButton out = new JButton("Select Level");
 				out.addActionListener( new ActionListener(){
 
 					@Override
 					public void actionPerformed(ActionEvent e) {
-						onMove(Move.ZOOM_OUT);
-						redraw();
+						//TODO
 					}
 					
 				});
 		
+				
+				
+				
+		//------------------------DeBug Client----------------------------------
+		ImageIcon icon;
+		
+		// Ground Dirt
+		icon = new ImageIcon("src/Images/Ground_Dirt.png");
+		groundDirt = new JLabel(icon);
+		groundDirt.addMouseListener(new MouseAdapter(){
+			@Override
+			public void mouseClicked(MouseEvent e){
+				getTextOutputArea().append("Ground Dirt Selected\n");
+			}
+					 
+			});
+				
+		// Ground Grass
+		icon = new ImageIcon("src/Images/Ground_Grass.png");
+		groundGrass = new JLabel(icon);
+		groundGrass.addMouseListener(new MouseAdapter(){
+			@Override
+			public void mouseClicked(MouseEvent e){
+				getTextOutputArea().append("Ground Grass Selected\n");
+			}
+						 
+		 });
+			
+		
+		// Ground Sand
+		icon = new ImageIcon("src/Images/Ground_Sand.png");
+		groundSand = new JLabel(icon);
+		groundSand.addMouseListener(new MouseAdapter(){
+			@Override
+			public void mouseClicked(MouseEvent e){
+				getTextOutputArea().append("Ground Sand Selected\n");
+			}
+			 
+		 });
+				
+		// Ground Gravel Concrete
+		icon = new ImageIcon("src/Images/GroundGravel_Concrete.png");
+		groundGravelConcrete = new JLabel(icon);
+		groundGravelConcrete.addMouseListener(new MouseAdapter(){
+			@Override
+			public void mouseClicked(MouseEvent e){
+				getTextOutputArea().append("Ground Gravel Concrete Selected\n");
+			}
+			 
+		 });
+		
+		// Ground Gravel Dirt
+		icon = new ImageIcon("src/Images/GroundGravel_Dirt.png");
+		groundGravelDirt = new JLabel(icon);
+		groundGravelDirt.addMouseListener(new MouseAdapter(){
+			@Override
+			public void mouseClicked(MouseEvent e){
+				getTextOutputArea().append("Ground Gravel Dirt Selected\n");
+			}
+			 
+		 });
+		
+		//Ground Gravel Grass
+		icon = new ImageIcon("src/Images/GroundGravel_Grass.png");
+		groundGravelGrass = new JLabel(icon);
+		groundGravelGrass.addMouseListener(new MouseAdapter(){
+			@Override
+			public void mouseClicked(MouseEvent e){
+				getTextOutputArea().append("Ground Gravel Grass Selected\n");
+			}
+			 
+		 });
+		
+		
+		// Ground Gravel Sand
+				icon = new ImageIcon("src/Images/GroundGravel_Sand.png");
+				groundGravelSand = new JLabel(icon);
+				groundGravelSand.addMouseListener(new MouseAdapter(){
+					@Override
+					public void mouseClicked(MouseEvent e){
+						getTextOutputArea().append("Ground Gravel Sand Selected\n");
+					}
+					 
+				 });
+		
+		
+		
+		 
+		
+				
+				
+				
+				
+		//-----------------------------------------------------------
 		
 		/*
 		 * Making the Layout for the Conrol Panel
@@ -243,9 +351,9 @@ public abstract class GUI {
 		JPanel nav = new JPanel();
 		nav.setMaximumSize(new Dimension(150,60));
 		nav.setLayout(new GridLayout(2,3));//(2,3) if add Zoom
-		nav.add(out);
+		nav.add(reName);
 		nav.add(up);
-		nav.add(in);
+		nav.add(out);
 		nav.add(left);
 		nav.add(down);
 		nav.add(right);
@@ -253,6 +361,24 @@ public abstract class GUI {
 		controls.add(Box.createRigidArea(new Dimension(15,0)));
 		controls.add(Box.createHorizontalGlue());
 		
+		
+		//---------------------------------------
+		controls.add(groundGravelGrass);
+		controls.add(new JSeparator(SwingConstants.VERTICAL));
+		controls.add(groundDirt);
+		controls.add(new JSeparator(SwingConstants.VERTICAL));
+		controls.add(groundGrass);
+		controls.add(new JSeparator(SwingConstants.VERTICAL));
+		controls.add(groundSand);
+		controls.add(new JSeparator(SwingConstants.VERTICAL));
+		controls.add(groundGravelConcrete);
+		controls.add(new JSeparator(SwingConstants.VERTICAL));
+		controls.add(groundGravelDirt);
+		controls.add(new JSeparator(SwingConstants.VERTICAL));
+		controls.add(groundGravelSand);
+		
+		
+		//---------------------------------------
 		
 		drawing = new JComponent(){
 			protected void paintComponent(Graphics g){
@@ -297,6 +423,7 @@ public abstract class GUI {
 		frame.setVisible(true);
 		
 	} //End of Init()
+	
 	
 	public JFrame getFrame(){
 		return frame;
