@@ -1,12 +1,5 @@
 package Objects;
 
-import java.awt.Graphics;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
-import javax.swing.JComponent;
 
 
 public class Player {
@@ -18,12 +11,7 @@ public class Player {
 	}
 
 	
-	
-	public void drawChar(Graphics g, JComponent drawing, String PATH, int imageHeight, int imageWidth){
-		
-		
-	}
-	
+
 	
 	//Helper Methods
 	public String getName() {

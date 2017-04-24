@@ -8,18 +8,20 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JComponent;
 
+
+
+
 import Sokoban.Sokoban.Direction;
 
 public class Drawing{
-	private Graphics g;
 	private JComponent drawing;
 	private final String PATH ="src/Images/";
 	
 	
 	
-	
 	public Drawing(JComponent drawing){
 		this.drawing=drawing;
+		
 	}
 	
 	public void drawPlayer(int imageHeight, int imageWidth, int xPos, int yPos, Graphics g, Direction d){
@@ -64,11 +66,9 @@ public class Drawing{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
+	
 	}
-	
-	
-	
-	
 	
 	
 }
