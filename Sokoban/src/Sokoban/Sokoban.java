@@ -1,18 +1,15 @@
 package Sokoban;
 
-import java.awt.Frame;
 import java.awt.Graphics;
-import java.util.Scanner;
+
 
 import javax.swing.JOptionPane;
 
-import Objects.Area;
 import Objects.Player;
 import Rendering.Drawing;
 
-public class Sokoban extends GUI {
+public class Sokoban extends GUI{
 	
-	private static final String PATH = "src/Images/";
 	private int imageWidth = getImageW();
 	private int imageHeight = getImageH();
 	
@@ -26,6 +23,8 @@ public class Sokoban extends GUI {
 	public enum Direction {
 		NORTH, WEST, EAST, SOUTH
 	};
+	
+
 	
 	
 	public Sokoban(){
@@ -52,18 +51,24 @@ public class Sokoban extends GUI {
 		if(m==Move.RIGHT){
 			dir=Direction.EAST;
 			if(p.getxPos()<getFrame().getWidth()-(imageWidth+20)){
-				p.setxPos(p.getxPos()+10);
-				
+				p.setxPos(p.getxPos()+10);	
 			}
 		}
 		
 		if(m==Move.DOWN){
 			dir=Direction.SOUTH;
+			System.out.println(p.getyPos());
+			System.out.println(getFrame().getHeight());
+			if(p.getyPos()<=getFrame().getHeight()-(imageHeight+211)){
+				p.setyPos(p.getyPos()+10);
+			}
 			
 		}
 		if(m==Move.UP){
 			dir=Direction.NORTH;
-			
+			if(p.getyPos()>=10){
+				p.setyPos(p.getyPos()-10);
+			}
 		}
 		
 	}
@@ -84,6 +89,7 @@ public class Sokoban extends GUI {
 		
 		//Main
 		new Sokoban();
+		
 	}
 
 

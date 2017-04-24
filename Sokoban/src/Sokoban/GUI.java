@@ -10,15 +10,10 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
-import java.io.IOException;
-import java.util.Scanner;
 
-import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -41,7 +36,6 @@ public abstract class GUI {
 	private static final int DEFULT_DRAWING_HEIGHT = 600;
 	private static final int DEFULT_DRAWING_WIDTH = 800;
 	private static final int TEXT_OUTPUT_ROWS = 5;
-	private static final int INPUT_COl = 15;
 	private static int imageWidth = 35;
 	private static int imageHeight = 40;
 	
@@ -73,6 +67,12 @@ public abstract class GUI {
 	}
 	public int getImageH(){
 		return imageHeight;
+	}
+	public int getDrawingW(){
+		return DEFULT_DRAWING_WIDTH;
+	}
+	public int getDrawingH(){
+		return DEFULT_DRAWING_HEIGHT;
 	}
 	public void setImageW(int s){
 		imageWidth =s;
@@ -386,6 +386,12 @@ public abstract class GUI {
 			}
 		};
 		
+		drawing.addKeyListener(new KeyAdapter(){
+			public void keyReleased(KeyEvent e){
+				System.out.println(e.getKeyCode());
+			}
+		});
+		
 		drawing.setPreferredSize(new Dimension(DEFULT_DRAWING_WIDTH,DEFULT_DRAWING_HEIGHT));
 		drawing.setVisible(true);
 		
@@ -409,6 +415,7 @@ public abstract class GUI {
 		split.setBorder(BorderFactory.createEmptyBorder());
 		split.setTopComponent(drawing);
 		split.setBottomComponent(scroll);
+		split.setEnabled(false);
 		
 		frame = new JFrame("Sokoban");
 		
@@ -417,7 +424,6 @@ public abstract class GUI {
 		frame.setLayout(new BorderLayout());
 		frame.add(controls, BorderLayout.NORTH);
 		frame.add(split, BorderLayout.CENTER);
-		
 		
 		frame.pack();
 		frame.setVisible(true);

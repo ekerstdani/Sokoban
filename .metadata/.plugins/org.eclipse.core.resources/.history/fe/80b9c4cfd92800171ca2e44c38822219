@@ -1,0 +1,10 @@
+package Delete;
+
+public class Snippet {
+	public static void main(String[] args) {
+		if(code == KeyEvent.VK_UP){
+					up();
+				}
+	}
+}
+

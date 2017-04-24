@@ -1,0 +1,19 @@
+package Delete;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JPanel;
+import javax.swing.Timer;
+
+public class second extends JPanel implements ActionListener {
+
+	Timer t = new Timer(5,this);
+	
+	
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+}
