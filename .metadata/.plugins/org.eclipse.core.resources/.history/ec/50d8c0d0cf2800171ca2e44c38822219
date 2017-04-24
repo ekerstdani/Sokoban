@@ -1,0 +1,429 @@
+package Sokoban;
+
+import java.awt.BorderLayout;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.IOException;
+import java.util.Scanner;
+
+import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JSplitPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
+import javax.swing.border.Border;
+import javax.swing.text.DefaultCaret;
+
+public abstract class GUI {
+
+	//GUI Default Height and Width
+	private static final int DEFULT_DRAWING_HEIGHT = 600;
+	private static final int DEFULT_DRAWING_WIDTH = 800;
+	private static final int TEXT_OUTPUT_ROWS = 5;
+	private static final int INPUT_COl = 15;
+	private static int imageWidth = 35;
+	private static int imageHeight = 40;
+	
+	//Variables for the GUI
+	private JFrame frame;
+	private JPanel controls;
+	protected JComponent drawing;
+	private JTextArea textOutputArea;
+	private JTextField input;
+	private JLabel groundGravelConcrete;
+	private JLabel groundDirt;
+	private JLabel groundGrass;
+	private JLabel groundSand;
+	private JLabel groundGravelDirt;
+	private JLabel groundGravelGrass;
+	private JLabel groundGravelSand;
+	
+	
+	/*
+	 * Enum of operations that can be used to move the character or map
+	 */
+	public enum Move {
+		UP, LEFT, DOWN, RIGHT, ZOOM_IN, ZOOM_OUT
+	};
+	
+	
+	public int getImageW(){
+		return imageWidth;
+	}
+	public int getImageH(){
+		return imageHeight;
+	}
+	public void setImageW(int s){
+		imageWidth =s;
+	}
+	public void setImageH(int s){
+		imageHeight =s;
+	}
+	
+	
+	
+	
+	//These are the methods you need to implement
+	protected abstract void redraw(Graphics g);
+	
+	protected abstract void onMove(Move m);
+	
+	
+	
+	public void redraw(){
+		frame.repaint();
+	}
+	
+	//Useful methods that i will need
+	
+	public JTextArea getTextOutputArea(){
+		return textOutputArea;
+	}
+	
+	public JTextField getInput(){
+		return input;
+	}
+	
+	/*
+	 * This calls the Initialise() to set up the GUI
+	 */
+	public GUI(){
+		
+		initialise();
+	}
+	
+	
+	
+	/*
+	 * This Initialises The GUI
+	 * Creates all of the buttons
+	 */
+	@SuppressWarnings("serial")
+	private void initialise() {
+		setImageW(35);
+		setImageH(40);
+		
+		JButton quit = new JButton("Quit");
+		quit.addActionListener(new ActionListener(){
+			/*
+			 * Will exit the GUI when the "Quit" Button is Pressed
+			 */
+			@Override
+			public void actionPerformed(ActionEvent ev) {
+				int dialogButton = JOptionPane.YES_NO_OPTION;
+				int dialogResult = JOptionPane.showConfirmDialog(frame, "Are you sure you want to Exit", "Exit", dialogButton);
+				if(dialogResult == 0) {
+					System.exit(0);
+				}
+			}
+		});
+		
+		//Restart Button
+		JButton restart = new JButton("Restart");
+		restart.addActionListener(new ActionListener(){
+			/*
+			 * Will exit the GUI when the "Quit" Button is Pressed
+			 */
+			@Override
+			public void actionPerformed(ActionEvent ev) {
+				int dialogButton = JOptionPane.YES_NO_OPTION;
+				int dialogResult = JOptionPane.showConfirmDialog(frame, "Are you sure you want to restart", "Restart", dialogButton);
+				if(dialogResult == 0) {
+					frame.removeAll();
+		            frame.validate();
+		            frame.setVisible(false);
+		            initialise();
+					
+				}
+			}
+		});
+		
+		
+		
+		
+		/*
+		 * Adding Moving Buttons
+		 * Left/WEST
+		 */
+		JButton left = new JButton("\u2190");
+		left.addActionListener( new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				onMove(Move.LEFT);
+				redraw();
+			}
+		});
+		
+		//Right/EAST
+		JButton right = new JButton("\u2192");
+		right.addActionListener( new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				onMove(Move.RIGHT);
+				redraw();
+			}
+		});
+		
+		//Up/North
+		JButton up = new JButton("\u2191");
+		up.addActionListener( new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				onMove(Move.UP);
+				redraw();
+			}
+		});
+		
+		//Down/South
+		JButton down = new JButton("\u2193");
+		down.addActionListener( new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				onMove(Move.DOWN);
+				redraw();
+			}
+			
+		});
+		
+		//Zoom In 
+				JButton in = new JButton("+");
+				in.addActionListener( new ActionListener(){
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						onMove(Move.ZOOM_IN);
+						redraw();
+					}
+					
+				});
+		
+		//Zoom Out
+				JButton out = new JButton("\u2012");
+				out.addActionListener( new ActionListener(){
+
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						onMove(Move.ZOOM_OUT);
+						redraw();
+					}
+					
+				});
+		
+				
+				
+				
+		//------------------------DeBug Client----------------------------------
+		ImageIcon icon;
+		
+		// Ground Dirt
+		icon = new ImageIcon("src/Images/Ground_Dirt.png");
+		groundDirt = new JLabel(icon);
+		groundDirt.addMouseListener(new MouseAdapter(){
+			@Override
+			public void mouseClicked(MouseEvent e){
+				getTextOutputArea().append("Ground Dirt Selected\n");
+			}
+					 
+			});
+				
+		// Ground Grass
+		icon = new ImageIcon("src/Images/Ground_Grass.png");
+		groundGrass = new JLabel(icon);
+		groundGrass.addMouseListener(new MouseAdapter(){
+			@Override
+			public void mouseClicked(MouseEvent e){
+				getTextOutputArea().append("Ground Grass Selected\n");
+			}
+						 
+		 });
+			
+		
+		// Ground Sand
+		icon = new ImageIcon("src/Images/Ground_Sand.png");
+		groundSand = new JLabel(icon);
+		groundSand.addMouseListener(new MouseAdapter(){
+			@Override
+			public void mouseClicked(MouseEvent e){
+				getTextOutputArea().append("Ground Sand Selected\n");
+			}
+			 
+		 });
+				
+		// Ground Gravel Concrete
+		icon = new ImageIcon("src/Images/GroundGravel_Concrete.png");
+		groundGravelConcrete = new JLabel(icon);
+		groundGravelConcrete.addMouseListener(new MouseAdapter(){
+			@Override
+			public void mouseClicked(MouseEvent e){
+				getTextOutputArea().append("Ground Gravel Concrete Selected\n");
+			}
+			 
+		 });
+		
+		// Ground Gravel Dirt
+		icon = new ImageIcon("src/Images/GroundGravel_Dirt.png");
+		groundGravelDirt = new JLabel(icon);
+		groundGravelDirt.addMouseListener(new MouseAdapter(){
+			@Override
+			public void mouseClicked(MouseEvent e){
+				getTextOutputArea().append("Ground Gravel Dirt Selected\n");
+			}
+			 
+		 });
+		
+		//Ground Gravel Grass
+		icon = new ImageIcon("src/Images/GroundGravel_Grass.png");
+		groundGravelGrass = new JLabel(icon);
+		groundGravelGrass.addMouseListener(new MouseAdapter(){
+			@Override
+			public void mouseClicked(MouseEvent e){
+				getTextOutputArea().append("Ground Gravel Grass Selected\n");
+			}
+			 
+		 });
+		
+		
+		// Ground Gravel Sand
+				icon = new ImageIcon("src/Images/GroundGravel_Sand.png");
+				groundGravelSand = new JLabel(icon);
+				groundGravelSand.addMouseListener(new MouseAdapter(){
+					@Override
+					public void mouseClicked(MouseEvent e){
+						getTextOutputArea().append("Ground Gravel Sand Selected\n");
+					}
+					 
+				 });
+		
+		
+		
+		 
+		
+				
+				
+				
+				
+		//-----------------------------------------------------------
+		
+		/*
+		 * Making the Layout for the Conrol Panel
+		 */
+		controls = new JPanel();
+		controls.setLayout(new BoxLayout(controls, BoxLayout.LINE_AXIS));
+		
+		//Make an empty border so componets arent up on the screen
+		
+		Border edge = BorderFactory.createEmptyBorder(5, 5, 5, 5);
+		controls.setBorder(edge);
+		
+		JPanel q = new JPanel();
+		q.setLayout(new GridLayout(2,1));
+		q.setMaximumSize(new Dimension(50,100));
+		q.add(quit);
+		q.add(restart);
+		controls.add(q);
+		
+		//Rigid area, space components out
+		controls.add(Box.createRigidArea(new Dimension(15,0)));
+		
+		JPanel nav = new JPanel();
+		nav.setMaximumSize(new Dimension(150,60));
+		nav.setLayout(new GridLayout(2,3));//(2,3) if add Zoom
+		nav.add(out);
+		nav.add(up);
+		nav.add(in);
+		nav.add(left);
+		nav.add(down);
+		nav.add(right);
+		controls.add(nav);
+		controls.add(Box.createRigidArea(new Dimension(15,0)));
+		controls.add(Box.createHorizontalGlue());
+		
+		
+		//---------------------------------------
+		controls.add(groundGravelGrass);
+		controls.add(new JSeparator(SwingConstants.VERTICAL));
+		controls.add(groundDirt);
+		controls.add(new JSeparator(SwingConstants.VERTICAL));
+		controls.add(groundGrass);
+		controls.add(groundSand);
+		controls.add(groundGravelConcrete);
+		controls.add(groundGravelDirt);
+		controls.add(groundGravelSand);
+		
+		
+		//---------------------------------------
+		
+		drawing = new JComponent(){
+			protected void paintComponent(Graphics g){
+				redraw(g);
+			}
+		};
+		
+		drawing.setPreferredSize(new Dimension(DEFULT_DRAWING_WIDTH,DEFULT_DRAWING_HEIGHT));
+		drawing.setVisible(true);
+		
+		
+		//Make a text output area
+		
+		textOutputArea = new JTextArea(TEXT_OUTPUT_ROWS,0);
+		textOutputArea.setLineWrap(true);
+		textOutputArea.setWrapStyleWord(true);
+		textOutputArea.setEditable(false);
+		JScrollPane scroll = new JScrollPane(textOutputArea);
+		DefaultCaret caret = (DefaultCaret) textOutputArea.getCaret();
+		caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+		
+		//Make main Frame
+		
+		JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+		split.setDividerSize(5);
+		split.setContinuousLayout(true);
+		split.setResizeWeight(1);
+		split.setBorder(BorderFactory.createEmptyBorder());
+		split.setTopComponent(drawing);
+		split.setBottomComponent(scroll);
+		
+		frame = new JFrame("Sokoban");
+		
+		//Makes program actually quit when button pressed
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setLayout(new BorderLayout());
+		frame.add(controls, BorderLayout.NORTH);
+		frame.add(split, BorderLayout.CENTER);
+		
+		
+		frame.pack();
+		frame.setVisible(true);
+		
+	} //End of Init()
+	
+	public JFrame getFrame(){
+		return frame;
+	}
+	
+}

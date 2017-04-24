@@ -1,0 +1,72 @@
+package Rendering;
+
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+import javax.swing.JComponent;
+
+import Sokoban.Sokoban.Direction;
+
+public class Drawing {
+	private Graphics g;
+	private JComponent drawing;
+	private final String PATH ="src/Images/";
+	
+	
+	
+	
+	public Drawing(JComponent drawing){
+		this.drawing=drawing;
+	}
+	
+	public void drawPlayer(int imageHeight, int imageWidth, int xPos, int yPos, Graphics g, Direction d){
+		BufferedImage character = null;
+		try {
+			//What picture to draw
+			if(d.equals(Direction.SOUTH)){
+				character = ImageIO.read(new File(PATH+"Character4.png"));
+			}
+			else if(d.equals(Direction.NORTH)){
+				character = ImageIO.read(new File(PATH+"Character4.png"));
+			}
+			else if(d.equals(Direction.EAST)){
+				character = ImageIO.read(new File(PATH+"Character4.png"));
+			}
+			else if(d.equals(Direction.WEST)){
+				character = ImageIO.read(new File(PATH+"Character4.png"));
+			}
+			
+			
+			g.drawImage(character,xPos,yPos,imageWidth,imageHeight, drawing);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	public void drawArea(int imageHeight, int imageWidth, Graphics g){
+		BufferedImage area;
+		try {
+			area = ImageIO.read(new File(PATH+"GroundGravel_Sand.png"));
+			//Loop to fill entire screen
+			for(int i = 0; i < drawing.getWidth(); i+=imageWidth){
+				for(int j = 0; j < drawing.getHeight(); j+=imageHeight){
+					g.drawImage(area,i,j,imageWidth,imageHeight, drawing);
+				}
+			}
+					
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	
+	
+	
+	
+	
+}

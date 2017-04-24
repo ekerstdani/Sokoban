@@ -10,7 +10,7 @@ import javax.swing.JComponent;
 
 import Sokoban.Sokoban.Direction;
 
-public class Drawing {
+public class Drawing{
 	private Graphics g;
 	private JComponent drawing;
 	private final String PATH ="src/Images/";
@@ -29,9 +29,20 @@ public class Drawing {
 			if(d.equals(Direction.SOUTH)){
 				character = ImageIO.read(new File(PATH+"Character4.png"));
 			}
+			else if(d.equals(Direction.NORTH)){
+				character = ImageIO.read(new File(PATH+"Character7.png"));
+			}
+			else if(d.equals(Direction.EAST)){
+				//Stopping
+				character = ImageIO.read(new File(PATH+"Character3.png"));
 			
-			
+			}
+			else if(d.equals(Direction.WEST)){
+				character = ImageIO.read(new File(PATH+"Character10.png"));
+			}
 			g.drawImage(character,xPos,yPos,imageWidth,imageHeight, drawing);
+			
+			
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
