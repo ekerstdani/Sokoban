@@ -1,0 +1,11 @@
+package Objects;
+
+import javax.swing.JComponent;
+
+public class Wall {
+	
+	public Wall(JComponent drawing){
+		
+	}
+
+}

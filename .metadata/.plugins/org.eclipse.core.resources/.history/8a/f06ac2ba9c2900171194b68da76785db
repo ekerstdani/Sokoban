@@ -1,0 +1,21 @@
+package logic;
+
+public class CharacterCard extends Card {
+
+	public CharacterCard(String name) {
+		super(name);
+		// TODO Auto-generated constructor stub
+	}
+	@Override
+	public boolean equals(Object o){
+		if(o != null && o instanceof CharacterCard){
+			CharacterCard t = (CharacterCard)o;
+			return t.getName().equals(name);
+		}
+		return false;
+	}
+	@Override
+	public int hashCode(){
+		return name.hashCode() + 1;
+	}
+}

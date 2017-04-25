@@ -1,0 +1,629 @@
+package cluedo;
+import gui.CluedoGui;
+
+import java.awt.Point;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+
+import logic.*;
+import logic.Character;
+public class CluedoGame implements MouseListener,KeyListener{
+	private CluedoGui gui;
+	private Board board;
+	private List<Card> cards = new ArrayList<Card>();
+	private Map<String,Card> cardMap = new HashMap<String,Card>();
+	private Map<String,Character> characters = new HashMap<String,Character>();
+	private List<Player> players = new ArrayList<Player>();
+	private Map<String,Room> rooms = new HashMap<String,Room>();
+	private Map<String,Weapon> weapons = new HashMap<String,Weapon>();
+	private Set<Card> murderCards;
+	private boolean gameStarted = false;
+	private boolean playersSubmitted = false;
+	//player choosing field
+	private String chosenCharacter;
+	//turn fields
+	private int currentTurn;
+	private int roll;
+	private boolean rolled;
+	private Location playerOriginalLoc;
+	private Card roomCard;
+	private Card weaponCard;
+	private Card characterCard;
+	private String cardString;
+	private boolean accusation = false;
+	private int suggestionTurn;
+	private Card refuteCard;
+	public static void main(String[] args){
+		CluedoGame b = new CluedoGame();
+		b.setupGame();
+	}
+	public CluedoGame(){
+		
+	}
+	public void restart(){
+		gui.reset();
+		cards = new ArrayList<Card>();
+		board = null;cardMap = new HashMap<String,Card>();
+		characters = new HashMap<String,Character>();
+		players = new ArrayList<Player>();
+		rooms = new HashMap<String,Room>();
+		weapons = new HashMap<String,Weapon>();
+		murderCards = null;
+		chosenCharacter = null;currentTurn = 0;
+		roll = 0; rolled = false;playerOriginalLoc = null;
+		roomCard = null;weaponCard = null;characterCard = null;
+		cardString = null;accusation = false;suggestionTurn = 0;
+		refuteCard = null;gameStarted = false;playersSubmitted = false;
+		setupCards();
+		board = new Board();
+		setupRooms();
+		setupCharacters();
+		setupWeapons();
+	}
+	//******************** IO Methods ************************\\
+	@Override
+	public void keyTyped(KeyEvent e){
+		
+	}
+	@Override 
+	public void keyPressed(KeyEvent e){
+		if(KeyEvent.getKeyText(e.getKeyCode()).equals("Enter")){
+			processKeyEventEnter();
+		}
+	}
+	@Override
+	public void keyReleased(KeyEvent e){
+		
+	}
+	@Override
+	public void mouseClicked(MouseEvent e){
+		if(rolled){
+			int x = (int)(e.getX()-5)/27;
+			int y = (int)(e.getY()-5)/20;
+			players.get(currentTurn).move(board,x,y,roll,playerOriginalLoc);
+			gui.repaintBoard();
+			gui.requestFocusInWindow();
+		}
+	}
+	@Override
+	public void mouseEntered(MouseEvent e){
+		
+	}
+	@Override
+	public void mouseExited(MouseEvent e){
+		
+	}
+	@Override
+	public void mousePressed(MouseEvent e){
+		
+	}
+	@Override
+	public void mouseReleased(MouseEvent e){
+		
+	}
+	
+	public void processKeyEventEnter(){
+		if(!gameStarted){
+			startGame();
+		}else if(!playersSubmitted){
+			if(gui.getInput().equals("")){
+				gui.showDialog("You have not chosen a name.");
+				return;
+			}
+			if(chosenCharacter != null){
+				submitPlayer();
+				return;
+			}
+			for(String s : characters.keySet()){
+				chosenCharacter = s;
+				submitPlayer();
+				return;
+			}
+			
+		}else if(!rolled && roomCard == null && accusation == false){
+			roll();
+		}else if(rolled && roomCard == null && accusation == false){
+			endTurn();
+		}
+	}
+	//********************runGame Methods**********************\\
+	
+	private void runGame() {
+		if(!players.get(currentTurn).isPlaying()){
+			endTurn();
+		}
+		gui.appendOutput(players.get(currentTurn).name() + " it is your turn");
+		gui.setGuiPlayerTurn(players.get(currentTurn));
+		rolled = false;
+		playerOriginalLoc = players.get(currentTurn).getLoc();
+		characterCard = null;
+		weaponCard = null;
+		roomCard = null;
+		cardString = null;
+		refuteCard = null;
+		gui.addAvailableMoves(null,roll);
+		gui.updateHand(players.get(currentTurn),roll);
+		gui.repaintBoard();
+	}
+	
+	public void endTurn(){
+		currentTurn++;
+		if(currentTurn == players.size()){
+			currentTurn = 0;
+		}
+		runGame();
+	}
+	public void roll(){
+		if(!rolled){
+			Random rng = new Random();
+			roll = rng.nextInt(6) + 1;
+			gui.updateHand(players.get(currentTurn),roll);
+			rolled = true;
+			gui.appendOutput(players.get(currentTurn).name() + " you rolled a " + roll);
+			gui.addAvailableMoves(playerOriginalLoc,roll);
+			gui.repaintBoard();
+		}else{
+			gui.showDialog("you have already rolled this turn");
+		}
+	}
+	public void startSuggestion(){
+		accusation = false;
+		Player player = players.get(currentTurn);
+		if(player.room() == null){
+			gui.showDialog("you cannot make a suggestion when you aren't in a room");
+			return;
+		}
+		if(player.room().equals(rooms.get("Basement"))){
+			gui.showDialog("you can't make a suggestion in the basement");
+			return;
+		}
+		rolled = false;
+		roomCard = cardMap.get(player.room().getName());
+		gui.addAvailableMoves(null,roll);
+		gui.repaintBoard();
+		gui.setGuiChoosingCards(makeCharacterCardSet(),"Character");
+	}
+	public void startAccusation(){
+		accusation = true;
+		Player player = players.get(currentTurn);
+		if(player.room() == null){
+			gui.showDialog("you cannot make a suggestion when you aren't in a room");
+			return;
+		}
+		if(!player.room().equals(rooms.get("Basement"))){
+			gui.showDialog("you can't make an accusation unless you are in the basement");
+			return;
+		}
+		rolled = false;
+		gui.addAvailableMoves(null,roll);
+		gui.repaintBoard();
+		gui.setGuiChoosingCards(makeRoomCardSet(),"Room");
+	}
+	
+	public void useSecretPassage(){
+		if(!playerOriginalLoc.isDoor()){
+			gui.showDialog("you are not in a room so you can't use the secret passage");
+			return;
+		}if(playerOriginalLoc.getRoom().secretPassage() == null){
+			gui.showDialog("this room doesn't have a secret passage");
+			return;
+		}else{
+			players.get(currentTurn).useSecretPassage(playerOriginalLoc);
+			gui.repaintBoard();
+		}
+	}
+	public void confirmCardSelection(){
+		if(cardString == null){
+			gui.showDialog("you have not chosen an option");
+			return;
+		}
+		Card card = cardMap.get(cardString);
+		if(card instanceof WeaponCard){
+			weaponCard = card;
+			if(!accusation){
+				Weapon w = weapons.get(card.getName());
+				Room r = rooms.get(roomCard.getName());
+				w.moveTo(r,weapons);
+				gui.repaintBoard();
+			}
+			finishedCardChoosing();
+			
+		}else if(card instanceof CharacterCard){
+			characterCard = card;
+			gui.repaintBoard();
+			gui.setGuiChoosingCards(makeWeaponCardSet(),"Weapons");
+		}else{
+			roomCard = card;
+			gui.repaintBoard();
+			gui.setGuiChoosingCards(makeCharacterCardSet(),"Characters");
+		}
+		cardString = null;
+	}
+	public void setCardString(String s){
+		cardString = s;
+	}
+	public void finishedCardChoosing(){
+		gui.setSuggestionCards(characterCard,weaponCard,roomCard);
+		gui.repaintBoard();
+		if(accusation){
+			processAccusation();
+		}else{
+			suggestionTurn = currentTurn;
+			gui.showDialog("players will now attempt to refute the accusation\n"
+					+ "The accusation is " + characterCard.getName() +" with the "+
+					weaponCard.getName() + " in the " + roomCard.getName());
+			processSuggestion();
+		}
+	}
+	public void processAccusation(){
+		Player p = players.get(currentTurn);
+		if(murderCards.contains(characterCard) && 
+				murderCards.contains(weaponCard) && 
+					murderCards.contains(roomCard)){
+			String message = p.name() + " has won the game \n would you like to play another one?";
+			String title = p.name() +" has won the game";
+			
+			boolean restart = gui.askDialog(message,title);
+			if(restart){
+				restart();
+				return;
+			}else{
+				System.exit(0);
+			}
+		}else{
+			gui.showDialog(p.name() + " has made a false Accusation, he is no longer a part of the game");
+			gui.setGuiContinueOption();
+			p.lose();
+		}
+	}
+	public void processSuggestion(){
+		suggestionTurn++;
+		if(suggestionTurn == currentTurn){
+			gui.showDialog("no one has refuted the suggestion");
+			gui.setGuiContinueOption();
+			return;
+		}if(suggestionTurn == players.size()){
+			suggestionTurn = 0;
+		}
+		Player p = players.get(suggestionTurn);
+		Set<Card> suggestedCards = new HashSet<Card>();
+		suggestedCards.add(characterCard);
+		suggestedCards.add(weaponCard);
+		suggestedCards.add(roomCard);
+		gui.setGuiRefuteOptions(p,suggestedCards);
+	}
+	public void setRefuteCard(String s){
+		refuteCard = cardMap.get(s);
+	}
+	public void refute(){
+		if(refuteCard == null){
+			gui.showDialog("you have not chosen a card to refute");
+			return;
+		}
+		gui.showDialog(players.get(suggestionTurn).name() + " has refuted"
+				+" the suggestion with " + refuteCard.getName());
+		gui.setGuiContinueOption();
+		return;
+	}
+	public Set<Card> makeWeaponCardSet(){
+		Set<Card> weaponCards = new HashSet<Card>();
+		for(String s : cardMap.keySet()){
+			if(cardMap.get(s) instanceof WeaponCard){
+				weaponCards.add(cardMap.get(s));
+			}
+		}
+		return weaponCards;
+	}
+	public Set<Card> makeRoomCardSet(){
+		Set<Card> roomCards = new HashSet<Card>();
+		for(String s : cardMap.keySet()){
+			if(cardMap.get(s) instanceof RoomCard){
+				roomCards.add(cardMap.get(s));
+			}
+		}
+		return roomCards;
+	}
+	public Set<Card> makeCharacterCardSet(){
+		Set<Card> CharacterCards = new HashSet<Card>();
+		for(String s : cardMap.keySet()){
+			if(cardMap.get(s) instanceof CharacterCard){
+				CharacterCards.add(cardMap.get(s));
+			}
+		}
+		return CharacterCards;
+	}
+	/**
+	 * returns the cardMap
+	 * @return
+	 */
+	public Map<String,Card> cardMap(){
+		return cardMap;
+	}
+	public Map<String,Character> characters(){
+		return characters;
+	}
+	public Board board(){
+		return board;
+	}
+	public List<Player> players(){
+		return players;
+	}
+	public Map<String,Weapon> weapons(){
+		return weapons;
+	}
+	//******************* Start Game Methods *******************\\
+	
+	/**
+	 * sets up the amount of players and their names and characters
+	 */
+	public void startGame() {
+		gui.setGuiChoosingPlayers();
+		players.clear();
+		gameStarted = true;
+		gui.setOutput("Enter a name and hit enter to choose a random character \n"
+				+ "or choose a character using the options menu instead.");
+	}
+	
+	public void chooseCharacter(String name){
+		chosenCharacter = name;
+	}
+	/**
+	 * if the chosenCharacter is not null and the user has entered a name
+	 * creates a new player and adds it to players.
+	 * if there is then 6 players commits the game
+	 */
+	public void submitPlayer(){
+		if(chosenCharacter == null){
+			gui.showDialog("You have not selected a character.");
+			return;
+		}
+		if(gui.getInput().equals("")){
+			gui.showDialog("You have not chosen a name.");
+			return;
+		}
+		Player p = new Player(gui.getInput(),characters.get(chosenCharacter));
+		players.add(p);
+		//remove from available characters
+		characters.remove(chosenCharacter);
+		//sets the gui back to choosing player with the now removed character
+		//not enabled
+		gui.setGuiChoosingPlayers();
+		gui.appendOutput(p.name() + " you are " + chosenCharacter);
+		//resets chosen character to null
+		chosenCharacter = null;
+		if(players.size() == 6){
+			commitGame();
+		}else{
+			gui.repaintBoard();
+		}
+	}
+	/**
+	 * if there are 3 players commits the game by drawing 
+	 * the murderCards and then giving the players their hands
+	 * it then calls runGame
+	 */
+	public void commitGame(){
+		if(players.size() < 3){
+			gui.showDialog("You need at least 3 players to start a game.");
+			return;
+		}
+		drawMurderCards();
+		int i = 0;
+		//drawing the cards for each player
+		while(!cards.isEmpty()){
+			players.get(i).addCard(drawRandomCard());
+			i++;
+			if(i >= players.size()){
+				i = 0;
+			}
+		}
+		currentTurn = 0;
+		playersSubmitted = true;
+		gui.repaintBoard();
+		gui.setOutput("choose an option in the option pane \n"
+				+ "hint - you can only move once you have rolled the dice.\n"
+				+ "hint - if you haven't rolled you can hit enter to roll.\n"
+				+ "hint - if you have rolled you can hit enter to end your. turn");
+		runGame();
+	}
+
+	/**
+	 * draws the murder cards which the players have to correctly accuse in order
+	 * to win the game
+	 */
+	private void drawMurderCards() {
+		murderCards = new HashSet<Card>();
+		Random rGenerator = new Random();
+		int index = 0;
+		//get the room card
+		while(true){
+			index = rGenerator.nextInt(cards.size());
+			Card c = cards.get(index);
+			if(c instanceof RoomCard){
+				cards.remove(index);
+				murderCards.add(c);
+				break;
+			}
+		}
+		//get the Weapon Card
+		while(true){
+			index = rGenerator.nextInt(cards.size());
+			Card c = cards.get(index);
+			if(c instanceof WeaponCard){
+				cards.remove(index);
+				murderCards.add(c);
+				break;
+			}
+		}
+		//get the characterCard
+		while(true){
+			index = rGenerator.nextInt(cards.size());
+			Card c = cards.get(index);
+			if(c instanceof CharacterCard){
+				cards.remove(index);
+				murderCards.add(c);
+				break;
+			}
+		}
+	}
+	/**
+	 * draws a random card from the card list and then removes it from the 
+	 * card list and then returns that card
+	 * @return
+	 */
+	private Card drawRandomCard(){
+		Random rGenerator = new Random();
+		int index = 0;
+		index = rGenerator.nextInt(cards.size());
+		Card c = cards.get(index);
+		cards.remove(index);
+		return c;
+	}
+	
+	//**********setting up the game below here**********\\
+	/**
+	 * calls all the setup game methods and makes the board and the gui
+	 */
+	public void setupGame() {
+		setupCards();
+		board = new Board();
+		setupRooms();
+		setupCharacters();
+		setupWeapons();
+		gui = new CluedoGui(this);
+		
+	}
+	
+	/**
+	 * sets up all the cards in the game and adds them to the card list and the 
+	 * card map
+	 */
+
+	private void setupCards() {
+		cards.clear();
+		//Character Cards
+		cards.add(new CharacterCard("Miss Scarlet")); cardMap.put("Miss Scarlet",cards.get(0));
+		cards.add(new CharacterCard("Colonel Mustard"));cardMap.put("Colonel Mustard",cards.get(1));
+		cards.add(new CharacterCard("Mrs White"));cardMap.put("Mrs White",cards.get(2));
+		cards.add(new CharacterCard("Reverend Green"));cardMap.put("Reverend Green",cards.get(3));
+		cards.add(new CharacterCard("Mrs Peacock"));cardMap.put("Mrs Peacock",cards.get(4));
+		cards.add(new CharacterCard("Professor Plum"));cardMap.put("Professor Plum",cards.get(5));
+
+		//Weapon Card
+		cards.add(new WeaponCard("Candlestick"));cardMap.put("Candlestick",cards.get(6));
+		cards.add(new WeaponCard("Knife"));cardMap.put("Knife",cards.get(7));
+		cards.add( new WeaponCard("Lead Pipe"));cardMap.put("Lead Pipe",cards.get(8));
+		cards.add(new WeaponCard("Revolver"));cardMap.put("Revolver",cards.get(9));
+		cards.add( new WeaponCard("Rope"));cardMap.put("Rope",cards.get(10));
+		cards.add(new WeaponCard("Wrench"));cardMap.put("Wrench",cards.get(11));
+
+		//Room Cards
+		cards.add(new RoomCard("Ball Room"));cardMap.put("Ball Room",cards.get(12));
+		cards.add(new RoomCard("Kitchen"));cardMap.put("Kitchen",cards.get(13));
+		cards.add(new RoomCard("Dining Room"));cardMap.put("Dining Room",cards.get(14));
+		cards.add(new RoomCard("Lounge"));cardMap.put("Lounge",cards.get(15));
+		cards.add(new RoomCard("Hall"));cardMap.put("Hall",cards.get(16));
+		cards.add(new RoomCard("Study"));cardMap.put("Study",cards.get(17));
+		cards.add(new RoomCard("Library"));cardMap.put("Library",cards.get(18));
+		cards.add(new RoomCard("Billiard Room"));cardMap.put("Billiard Room",cards.get(19));
+		cards.add(new RoomCard("Conservatory"));cardMap.put("Conservatory",cards.get(20));
+		
+	}
+	/**
+	 * sets up all the rooms and gives them doors and then gives all the 
+	 * door locations rooms if they are a door
+	 */
+	private void setupRooms() {
+		rooms.put("Ball Room", new Room("Ball Room",new Point(11,6)));
+		rooms.put("Kitchen", new Room("Kitchen",new Point(2,5)));
+		rooms.put("Dining Room", new Room("Dining Room",new Point(3,14)));
+		rooms.put("Lounge", new Room("Lounge",new Point(4,23)));
+		rooms.put("Hall", new Room("Hall",new Point(11,23)));
+		rooms.put("Study", new Room("Study",new Point(22,23)));
+		rooms.put("Library", new Room("Library",new Point(20,17)));
+		rooms.put("Billiard Room", new Room("Billiard Room",new Point(11,23)));
+		rooms.put("Conservatory", new Room("Conservatory",new Point(21,4)));
+		rooms.put("Basement", new Room("Basement",null));
+		//add secret passages
+		rooms.get("Kitchen").setSecretPassage(rooms.get("Study"));
+		rooms.get("Study").setSecretPassage(rooms.get("Kitchen"));
+		rooms.get("Conservatory").setSecretPassage(rooms.get("Lounge"));
+		rooms.get("Lounge").setSecretPassage(rooms.get("Conservatory"));
+		//add the doors
+		Location loc = board.getLocation(4,6);
+		Room r = rooms.get("Kitchen");
+		r.addDoor(loc); loc.setRoom(r);
+		
+		r = rooms.get("Ball Room");
+		loc = board.getLocation(8,5); r.addDoor(loc); loc.setRoom(r);
+		loc = board.getLocation(9,7); r.addDoor(loc); loc.setRoom(r);
+		loc = board.getLocation(14,7); r.addDoor(loc); loc.setRoom(r);
+		loc = board.getLocation(15,5); r.addDoor(loc); loc.setRoom(r);
+		
+		r = rooms.get("Conservatory");
+		loc = board.getLocation(18,4); r.addDoor(loc); loc.setRoom(r);
+		
+		r = rooms.get("Billiard Room");
+		loc = board.getLocation(18,9); r.addDoor(loc); loc.setRoom(r);
+		loc = board.getLocation(22,12); r.addDoor(loc); loc.setRoom(r);
+		
+		r = rooms.get("Library");
+		loc = board.getLocation(21,14); r.addDoor(loc); loc.setRoom(r);
+		loc = board.getLocation(17,16); r.addDoor(loc); loc.setRoom(r);
+		
+		r = rooms.get("Study");
+		loc = board.getLocation(17,21); r.addDoor(loc); loc.setRoom(r);
+		
+		r = rooms.get("Hall");
+		loc = board.getLocation(14,19); r.addDoor(loc); loc.setRoom(r);
+		loc = board.getLocation(12,18); r.addDoor(loc); loc.setRoom(r);
+		loc = board.getLocation(11,18); r.addDoor(loc); loc.setRoom(r);
+		
+		r = rooms.get("Lounge");
+		loc = board.getLocation(6,19); r.addDoor(loc); loc.setRoom(r);
+		
+		r = rooms.get("Dining Room");
+		loc = board.getLocation(6,15); r.addDoor(loc); loc.setRoom(r);
+		loc = board.getLocation(7,12); r.addDoor(loc); loc.setRoom(r);
+		
+		r = rooms.get("Basement");
+		loc = board.getLocation(12,16);r.addDoor(loc); loc.setRoom(r);
+				
+	}
+
+	/**
+	 * sets up all the characters in the game and puts them in the character map
+	 */
+	private void setupCharacters() {
+		characters.clear();
+		//need locations on board
+		characters.put("Mrs White",new Character("Mrs White",board.getLocation(9,0)));
+		characters.put("Professor Plum",new Character("Professor Plum",board.getLocation(23,19)));
+		characters.put("Reverend Green",new Character("Reverend Green",board.getLocation(14,0)));
+		characters.put("Colonel Mustard",new Character("Colonel Mustard",board.getLocation(0,17)));
+		characters.put("Miss Scarlet",new Character("Miss Scarlet",board.getLocation(7,24)));
+		characters.put("Mrs Peacock",new Character("Mrs Peacock",board.getLocation(23,6)));
+	}
+	/**
+	 * sets up all the weapons in the game and puts them in the weapon map
+	 */
+	private void setupWeapons() {
+		weapons.put("Candlestick", new Weapon("Candlestick",rooms.get("Lounge")));
+		weapons.put("Knife", new Weapon("Knife",rooms.get("Kitchen")));
+		weapons.put("Lead Pipe", new Weapon("Lead Pipe",rooms.get("Conservatory")));
+		weapons.put("Revolver", new Weapon("Revolver",rooms.get("Study")));
+		weapons.put("Rope", new Weapon("Rope",rooms.get("Ball Room")));
+		weapons.put("Wrench", new Weapon("Wrench",rooms.get("Billiard Room")));
+	}
+
+	
+}

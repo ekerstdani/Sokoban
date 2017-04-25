@@ -1,0 +1,376 @@
+package gui;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.util.Set;
+
+import javax.swing.AbstractAction;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ButtonGroup;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRadioButton;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+
+import logic.Card;
+import logic.Location;
+import logic.Player;
+import cluedo.CluedoGame;
+
+public class CluedoGui extends JFrame{
+	private CluedoGame game;
+	private JPanel options;
+	private JPanel gameScreen;
+	private JPanel foot;
+	private JMenuBar jmb;
+	private JTextField input;
+	private JTextArea output;
+	private BoardCanvas boardView;
+	private HandCanvas cardView;
+	
+	public static final String IMAGE_PATH = "src/images/";
+	
+	public CluedoGui(CluedoGame g){
+		super("Cluedo Game");
+		setLayout(new BorderLayout());
+		game = g;
+		setFocusable(true);
+		requestFocusInWindow();
+		addKeyListener(game);
+		options = new JPanel();
+		gameScreen = new JPanel(new BorderLayout());
+		jmb = new JMenuBar();
+		foot = new JPanel(new BorderLayout());
+		input = new JTextField();
+		output = new JTextArea();
+		setupGui();
+	}
+	public void reset(){
+		getContentPane().removeAll();
+		boardView.removeMouseListener(game);
+		boardView.removeMouseMotionListener(boardView);
+		setLayout(new BorderLayout());
+		options = new JPanel();
+		gameScreen = new JPanel(new BorderLayout());
+		jmb = new JMenuBar();
+		foot = new JPanel(new BorderLayout());
+		input = new JTextField();
+		output = new JTextArea();
+		setupGui();
+		revalidate();
+		repaint();
+	}
+	public void setGuiContinueOption(){
+		options.removeAll();
+		options.repaint();
+		JLabel l = new JLabel("click to continue ");
+		options.add(Box.createVerticalStrut(5));
+		options.add(l);
+		JButton b = new JButton("Continue");
+		b.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				game.endTurn();
+			}
+		});
+		options.add(Box.createVerticalStrut(10));
+		options.add(b);
+		options.revalidate();
+	}
+	public void setGuiRefuteOptions(Player p,Set<Card> suggestedCards){
+		options.removeAll();
+		options.repaint();
+		boolean canRefute = false;
+		for(Card c : suggestedCards){
+			if(p.hand().contains(c)){
+				canRefute = true;
+				break;
+			}
+		}
+		JLabel l = new JLabel(p.name() + " your turn to refute");
+		options.add(Box.createVerticalStrut(5));
+		options.add(l);
+		JButton b = new JButton("confirm");
+		b.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				game.refute();
+			}
+		});
+		options.add(Box.createVerticalStrut(10));
+		options.add(b);
+		b = new JButton("Skip");
+		b.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				game.processSuggestion();
+			}
+		});
+		if(canRefute){
+			b.setEnabled(false);
+		}
+		options.add(Box.createVerticalStrut(10));
+		options.add(b);
+		ButtonGroup group = new ButtonGroup();
+		for(Card c : p.hand()){
+			JRadioButton r = new JRadioButton(c.getName());
+			r.addActionListener(new ActionListener(){
+				public void actionPerformed(ActionEvent e){
+					game.setRefuteCard(e.getActionCommand());
+				}
+			});
+			if(!suggestedCards.contains(c)){
+				r.setEnabled(false);
+			}
+			group.add(r);
+			options.add(Box.createVerticalStrut(5));
+			options.add(r);
+		}
+		options.revalidate();
+		
+	}
+	public void setGuiChoosingCards(Set<Card> cards,String cardType){
+		options.removeAll();
+		options.repaint();
+		JLabel l = new JLabel("please choose a " + cardType);
+		options.add(Box.createVerticalStrut(5));
+		options.add(l);
+		JButton b = new JButton("Confirm");
+		b.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				game.confirmCardSelection();
+			}
+		});
+		options.add(Box.createVerticalStrut(10));
+		options.add(b);
+		
+		ButtonGroup group = new ButtonGroup();
+		for(Card c : cards){
+			JRadioButton r = new JRadioButton(c.getName());
+			r.addActionListener(new ActionListener(){
+				public void actionPerformed(ActionEvent e){
+					game.setCardString(e.getActionCommand());
+				}
+			});
+			group.add(r);
+			options.add(Box.createVerticalStrut(5));
+			options.add(r);
+		}
+		options.revalidate();
+	}
+	public void setGuiPlayerTurn(Player p){
+		input.setText("");
+		options.removeAll();
+		options.repaint();
+		JLabel headerLabel = new JLabel(p.name() + " your turn");
+		options.add(Box.createVerticalStrut(5));
+		options.add(headerLabel);
+		JButton b = new JButton("End Turn");
+		b.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				game.endTurn();
+			}
+		});
+		options.add(Box.createVerticalStrut(5));
+		options.add(b);
+		b = new JButton("Roll");
+		b.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				game.roll();
+			}
+		});
+		options.add(Box.createVerticalStrut(10));
+		options.add(b);
+		
+		b = new JButton("Suggest");
+		b.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				game.startSuggestion();
+			}
+		});
+		options.add(Box.createVerticalStrut(10));
+		options.add(b);
+		
+		b = new JButton("Accuse");
+		b.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				game.startAccusation();
+			}
+		});
+		options.add(Box.createVerticalStrut(10));
+		options.add(b);
+		
+		b = new JButton("Secret Passage");
+		b.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				game.useSecretPassage();
+			}
+		});
+		options.add(Box.createVerticalStrut(10));
+		options.add(b);
+		options.revalidate();
+	}
+	
+	public void setGuiChoosingPlayers(){
+		input.setText("");
+		input.requestFocusInWindow();
+		options.removeAll();
+		options.repaint();
+		JButton b = new JButton("Submit Player");
+		b.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				game.submitPlayer();
+			}
+		});
+		options.add(Box.createVerticalStrut(5));
+		options.add(b);
+		b = new JButton("Start Game");
+		b.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				game.commitGame();
+			}
+		});
+		options.add(Box.createVerticalStrut(10));
+		options.add(b);
+		String[] people = {"Mrs White","Professor Plum","Reverend Green","Colonel Mustard","Miss Scarlet","Mrs Peacock",};
+		ButtonGroup group = new ButtonGroup();
+		for(int i =0; i < people.length;i++){
+			JRadioButton r = new JRadioButton(people[i]);
+			r.addActionListener(new ActionListener(){
+				public void actionPerformed(ActionEvent e){
+					game.chooseCharacter(e.getActionCommand());
+					input.requestFocusInWindow();
+				}
+			});
+			if(!game.characters().keySet().contains(people[i])){
+				r.setEnabled(false);
+			}
+			group.add(r);
+			options.add(Box.createVerticalStrut(5));
+			options.add(r);
+		}
+		options.revalidate();
+	}
+	public void addAvailableMoves(Location start,int roll){
+		boardView.addAvailableMoves(start,roll);
+	}
+	public void updateHand(Player p,int roll){
+		cardView.updateHand(p,roll);
+	}
+	public void setSuggestionCards(Card c,Card w,Card r){
+		cardView.setSuggestionCards(c,w,r);
+	}
+	public void showDialog(String message){
+		JOptionPane.showMessageDialog(this,message );
+	}
+	public boolean askDialog(String message,String title){
+		int userResult = JOptionPane.showConfirmDialog(CluedoGui.this, message, title, JOptionPane.YES_NO_OPTION);
+		if (userResult == JOptionPane.YES_OPTION){
+			return true;
+		}
+		return false;
+	}
+	public String getInput(){
+		return input.getText();
+	}
+	
+	public void appendOutput(String text){
+		output.append("\n"+text);
+	}
+	public void setOutput(String text){
+		output.setText(text);
+	}
+	//************************** Initial Gui Setup ***********************\\
+	public void setupGui(){
+		output.setEditable(false);
+		setOutput("To begin, hit enter or press the start button in the option pane");
+		gameScreen.setBorder(BorderFactory.createLineBorder(Color.black));
+		options.setLayout(new BoxLayout(options,BoxLayout.Y_AXIS));
+		options.setBorder(BorderFactory.createTitledBorder("Option Pane"));
+		boardView = new BoardCanvas(game);
+		JPanel inputPanel = new JPanel(new BorderLayout());
+		JLabel inputLabel = new JLabel("Input text here");
+		inputPanel.add(inputLabel,BorderLayout.NORTH);
+		input.addKeyListener(game);
+		inputPanel.add(input,BorderLayout.CENTER);
+		gameScreen.add(boardView,BorderLayout.CENTER);
+		gameScreen.add(inputPanel,BorderLayout.SOUTH);
+		setupMenu();
+		JButton button = new JButton("New Game");
+		button.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				game.startGame();
+			}
+		});
+		button.setAlignmentX(Component.CENTER_ALIGNMENT);
+		options.add(button);
+		options.setPreferredSize(new Dimension(150,600));
+		output.setBorder(BorderFactory.createLineBorder(Color.black));
+		JScrollPane scroll = new JScrollPane(output);
+		scroll.setPreferredSize(new Dimension(400,175));
+		cardView = new HandCanvas();
+		foot.add(scroll,BorderLayout.WEST);
+		foot.add(cardView,BorderLayout.CENTER);
+		setSize(900,800);
+		setResizable(false);
+		add(options,BorderLayout.WEST);
+		add(gameScreen,BorderLayout.CENTER);
+		add(foot,BorderLayout.SOUTH);
+		
+		addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent we)
+			{
+				boolean result = askDialog("Are you sure you want to exit","Exit Confirmation : ");
+				if (result){
+					setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+				}else{
+					setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+				}  
+					
+			}
+		});
+		setVisible(true);
+	}
+
+	public void setupMenu(){
+		JMenu game = new JMenu("Game");
+		JMenuItem close = new JMenuItem(new AbstractAction("Close"){
+			public void actionPerformed(ActionEvent e){
+				boolean result = askDialog("Are you sure you want to exit","Exit Confirmation : ");
+				if (result){
+					System.exit(0);
+				}
+					
+			}
+		});
+		JMenuItem restart = new JMenuItem(new AbstractAction("Restart"){
+			public void actionPerformed(ActionEvent e){
+				CluedoGui.this.game.restart();
+			}
+		});
+		game.add(restart);
+		game.addSeparator();
+		game.add(close);
+		jmb.add(game);
+		setJMenuBar(jmb);
+		
+	}
+	
+	public void repaintBoard(){
+		boardView.repaint();
+		cardView.repaint();
+	}
+}

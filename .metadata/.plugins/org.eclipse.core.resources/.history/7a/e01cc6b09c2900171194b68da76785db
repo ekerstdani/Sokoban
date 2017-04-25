@@ -1,0 +1,225 @@
+package logic;
+
+import gui.BoardCanvas;
+import gui.CluedoGui;
+
+import java.awt.BasicStroke;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Point;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+public class Board {
+	private final int COLSIZE = 25;
+	private final int ROWSIZE = 25;
+	Location[][] board = new Location[ROWSIZE][COLSIZE];
+	public Board(){
+		setupBoard();
+	}
+	/**
+	 * sets up the board array with all of its locations and doors
+	 * any index of the board that doesn't have a location is unaccessible
+	 * by the players and so is automatically null
+	 */
+	private void setupBoard() {
+		int[] accessibleXs = {9,14,7,8,9,14,15,16,6,7,16,17,6,7,16,17,6,7,16,17,6,7,16,17,18,6,7,16,17,18,19,20,21,22,23,0,1,2,3,4,5,6,7,16,17,18,19,20,21,22,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,
+				5,6,7,8,9,10,11,12,13,14,15,16,17,8,9,15,16,17,8,9,15,16,17,8,9,15,16,17,8,9,15,16,17,18,19,20,21,22,8,9,15,16,17,8,9,15,16,1,2,3,4,5,6,7,8,9,15,16,0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,
+				15,16,1,2,3,4,5,6,7,8,15,16,17,7,8,15,16,17,18,19,20,21,22,23,7,8,15,16,17,18,19,20,21,22,7,8,15,16,7,8,15,16,7,8,15,16,7,16,16};
+		int[] accessibleYs = {0,0,1,1,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,5,6,6,6,6,6,6,6,6,6,6,7,7,7,7,7,7,7,7,7,7,7,7,7,7,7,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,8,9,9,9,9,9,9,9,9,9,9,9,9,9,
+				10,10,10,10,10,11,11,11,11,11,12,12,12,12,12,13,13,13,13,13,13,13,13,13,13,14,14,14,14,14,15,15,15,16,16,16,16,16,16,16,16,16,16,16,17,17,17,17,17,17,17,17,17,17,17,17,
+				17,17,17,17,17,18,18,18,18,18,18,18,18,18,18,18,18,19,19,19,19,19,19,19,19,19,19,19,20,20,20,20,20,20,20,20,20,20,21,21,21,21,22,22,22,22,23,23,23,23,24,24,15};
+		int[] doorXs = {4,8,9,14,15,18,18,22,21,17,17,14,12,11,6,6,7,12};
+		int[] doorYs = {6,5,7,7,5,4,9,12,14,16,21,19,18,18,19,15,12,16};
+		for(int i = 0; i < accessibleXs.length;i++){
+			board[accessibleXs[i]][accessibleYs[i]] = new Location(accessibleXs[i],accessibleYs[i],false);
+		}
+		for(int i = 0; i < doorXs.length;i++){
+			board[doorXs[i]][doorYs[i]] = new Location(doorXs[i],doorYs[i],true);
+		}
+	}
+	
+	/**
+	 * returns the location at the given x and y coordinates
+	 * if the x or y is out of bounds returns null
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public Location getLocation(int x, int y){
+		if(x >= ROWSIZE || x < 0 || y >= COLSIZE || y < 0){
+			return null;
+		}
+		else{
+			return board[x][y];
+		}
+	}
+	/**
+	 * prints the board
+	 * @param players
+	 */
+	public void drawBoard(List<Player> players,Point mouse, Graphics g){
+		int height = BoardCanvas.BOX_HEIGHT;
+		int width = BoardCanvas.BOX_LENGTH;
+		for(int i=0; i<COLSIZE;i++){
+			for( int j=0; j<ROWSIZE;j++){
+				boolean found = false;
+				for(int k = 0; k < players.size(); k++){
+					Player p = players.get(k);
+					if(players.get(k).isAt(board[j][i])){
+						g.drawImage(p.characterToken(), j*width+5, i*height+5, null);
+						found = true;
+					}
+				}
+				if(board[j][i] == null){
+					
+				}else if(mouse.x > j*width+5 && mouse.x < (j+1)*width+5 && mouse.y > i*height+5 && mouse.y < (i+1)*height+5 ){
+					g.setColor(Color.white);
+					g.drawRect(j*width+6, i*height+6, width-2,height-2);
+				}else if(board[j][i].isDoor() && !found){
+					g.setColor(Color.red);
+					g.drawRect(j*width+6, i*height+6, width-2,height-2);
+				}else if(!found){
+					g.setColor(Color.black);
+					g.drawRect(j*width+6, i*height+6, width-2,height-2);
+				}
+			}
+		}
+		for(Player p : players){
+			int x = p.getLoc().getX();
+			int y = p.getLoc().getY();
+			if(mouse.x > x*width+5 && mouse.x < (x+1)*width+5 && mouse.y > y*height+5 && mouse.y < (y+1)*height+5 ){
+				g.setFont(new Font("TimesRoman",Font.BOLD,10));
+				g.drawString(p.name(),x*(width+1)+5,y*height+5);
+			}
+		}
+	}
+	public void drawAvailableLocations(Room r,int roll,Point mouse,Graphics g){
+		for(Location d : r.doors()){
+			drawAvailableLocations(d,roll,mouse,g);
+		}
+	}
+	public void drawAvailableLocations(Location start,int roll,Point mouse, Graphics g){
+		recurseAvailableLocations(start,start,roll,0,mouse,g);
+	}
+	public void recurseAvailableLocations(Location thisLoc,Location prev,int roll,int depth,Point mouse, Graphics g){
+		if(depth > roll){
+			return;
+		}
+		int height = BoardCanvas.BOX_HEIGHT;
+		int width = BoardCanvas.BOX_LENGTH;
+		int x = thisLoc.getX();
+		int y = thisLoc.getY();
+		if(mouse.x > x*width+5 && mouse.x < (x+1)*width+5 && mouse.y > y*height+5 && mouse.y < (y+1)*height+5 ){
+			g.setColor(Color.white);
+		}else{
+			g.setColor(new Color(54,239,0));
+		}
+		g.drawRect(x*BoardCanvas.BOX_LENGTH+6, y*BoardCanvas.BOX_HEIGHT+6, BoardCanvas.BOX_LENGTH-2, BoardCanvas.BOX_HEIGHT-2);
+		if(x-1 >0 && board[x-1][y] != null && !board[x-1][y].equals(prev)){
+			recurseAvailableLocations(board[x-1][y],thisLoc,roll,depth+1,mouse,g);
+		}
+		if(x+1 < ROWSIZE && board[x+1][y] != null && !board[x+1][y].equals(prev)){
+			recurseAvailableLocations(board[x+1][y],thisLoc,roll,depth+1,mouse,g);
+		}
+		if(y+1 < ROWSIZE && board[x][y+1] != null && !board[x][y+1].equals(prev)){
+			recurseAvailableLocations(board[x][y+1],thisLoc,roll,depth+1,mouse,g);
+		}
+		if(y-1 >0 && board[x][y-1] != null && !board[x][y-1].equals(prev)){
+			recurseAvailableLocations(board[x][y-1],thisLoc,roll,depth+1,mouse,g);
+		}
+	}
+	/**
+	 * checks if they player can reach the destination from any of the doors
+	 * in the room the player is currently in.
+	 * @param currentRoom - the room that the player is currently in
+	 * @param destination - the destination location
+	 * @param roll - the dice roll
+	 * @return
+	 */
+	public boolean validMove(Room currentRoom, Location destination,int roll) {
+		for(Location d : currentRoom.doors()){
+			//if the player can reach the destination from the door return true
+			if(validMove(d,destination,roll)){
+				return true;
+			}
+		}
+		return false;
+	}
+	/**
+	 * checks if it is a valid move from the start location to the destination
+	 * - first checks that the destination isn't null
+	 * - secondly checks that it is within the roll
+	 * - and thirdly checks that the player isn't going through a wall to get there
+	 * - if all these are true and return true
+	 * @param thisLoc - the starting location
+	 * @param destination - the destination location
+	 * @param roll - the dice roll
+	 * @return
+	 */
+	public boolean validMove(Location thisLoc, Location destination,int roll){
+		if(destination == null){
+			return false;
+		}
+		//checking that it is not more squares away then the roll
+		if(Math.abs(thisLoc.getX() - destination.getX()) + Math.abs(thisLoc.getY() - destination.getY()) > roll){
+			return false;
+		}
+		//checks that the player is not going through a wall to get there
+		if(!recurseValidMove(thisLoc,destination,roll,0,thisLoc)){
+			return false;
+		}
+		
+		return true;
+	}
+	/**
+	 * recursively searches for a valid way to get to the destination within the 
+	 * roll and without going through a wall
+	 * @param thisLoc - current location that is being processed
+	 * @param destination - destination location
+	 * @param roll - roll
+	 * @param depth - recursive depth
+	 * @param prev - previous location 
+	 * @return
+	 */
+	private boolean recurseValidMove(Location thisLoc, Location destination,
+			int roll, int depth,Location prev) {
+		//if this location is the destination then it is a valid move return true
+		if(thisLoc.equals(destination)){
+			return true;
+		}
+		//if this is not the destination and the depth = the roll then
+		//can't go any further so return false
+		else if(depth == roll){
+			return false;
+		}
+		int x = thisLoc.getX();
+		int y = thisLoc.getY();
+		//now go through all the neighbours and call recurseValidMove on them
+		//and if they return true then you can return true
+		if(x-1 >0 && board[x-1][y] != null && !board[x-1][y].equals(prev)){
+			if(recurseValidMove(board[x-1][y],destination,roll,depth+1,thisLoc)){
+				return true;
+			}
+		}
+		if(x+1 < ROWSIZE && board[x+1][y] != null && !board[x+1][y].equals(prev)){
+			if(recurseValidMove(board[x+1][y],destination,roll,depth+1,thisLoc)){
+				return true;
+			}
+		}
+		if(y+1 < ROWSIZE && board[x][y+1] != null && !board[x][y+1].equals(prev)){
+			if(recurseValidMove(board[x][y+1],destination,roll,depth+1,thisLoc)){
+				return true;
+			}
+		}
+		if(y-1 >0 && board[x][y-1] != null && !board[x][y-1].equals(prev)){
+			if(recurseValidMove(board[x][y-1],destination,roll,depth+1,thisLoc)){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+}

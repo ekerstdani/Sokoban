@@ -1,0 +1,59 @@
+package Objects;
+
+import javax.swing.JComponent;
+
+
+
+public class Player {
+	private String name;
+	private int xPos = 0;
+	private int yPos = 0;
+	private JComponent drawing;
+	
+	
+	public Player(String name, JComponent drawing){
+ 		this.name = name;
+ 		this.drawing=drawing;
+	}
+
+	
+
+	
+	//Helper Methods
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+
+
+	public int getxPos() {
+		return xPos;
+	}
+
+
+
+	public void setxPos(int xPos) {
+		this.xPos = xPos;
+	}
+
+
+
+	public int getyPos() {
+		return yPos;
+	}
+
+
+
+	public void setyPos(int yPos) {
+		this.yPos = yPos;
+	}
+	
+	
+	
+	
+
+}

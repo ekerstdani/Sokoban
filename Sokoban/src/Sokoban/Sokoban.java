@@ -2,11 +2,10 @@ package Sokoban;
 
 import java.awt.Graphics;
 
-
 import javax.swing.JOptionPane;
 
+import Objects.Area;
 import Objects.Player;
-import Rendering.Drawing;
 
 public class Sokoban extends GUI{
 	
@@ -17,8 +16,8 @@ public class Sokoban extends GUI{
     
 	//Class Fields
 	
-	private Drawing draw = new Drawing(drawing);
-	private Player p = new Player(" ");
+	private Player p = new Player(" ",drawing);
+	private Area area = new Area(drawing);
 	private Direction dir = Direction.SOUTH;
 	public enum Direction {
 		NORTH, WEST, EAST, SOUTH
@@ -57,7 +56,7 @@ public class Sokoban extends GUI{
 		
 		if(m==Move.DOWN){
 			dir=Direction.SOUTH;
-			if(p.getyPos()<=getFrame().getHeight()-(imageHeight+211)){
+			if(p.getyPos()<=drawing.getHeight()-(imageHeight+10)){
 				p.setyPos(p.getyPos()+10);
 			}
 			
@@ -75,10 +74,12 @@ public class Sokoban extends GUI{
 	
 	public void redraw(Graphics g){
 		//Draw The Area
-		draw.drawArea(getImageH(), getImageW(), g);
-		draw.drawPlayer(imageHeight, imageWidth, p.getxPos(), p.getyPos(), g, dir);
+		area.drawArea(getImageH(), getImageW(), g);
+		p.drawPlayer(imageHeight, imageWidth, p.getxPos(), p.getyPos(), g, dir);
 		
 	}
+	
+	
 	
 	public static void main(String[] args){
 		
@@ -97,6 +98,14 @@ public class Sokoban extends GUI{
 		p.setName(JOptionPane.showInputDialog(getFrame(), "Enter a Username", "Username", JOptionPane.PLAIN_MESSAGE));
 		getTextOutputArea().setText("Username is: "+p.getName() +"\n");
 		
+	}
+
+
+
+	@Override
+	protected void setGround(String s) {
+		// TODO Auto-generated method stub
+		area.setGround(s);
 	}
 
 }
