@@ -30,6 +30,8 @@ import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 import javax.swing.text.DefaultCaret;
 
+import Sokoban.Sokoban.Direction;
+
 public abstract class GUI {
 
 	//GUI Default Height and Width
@@ -385,10 +387,24 @@ public abstract class GUI {
 				redraw(g);
 			}
 		};
-		
 		drawing.addKeyListener(new KeyAdapter(){
-			public void keyReleased(KeyEvent e){
-				System.out.println(e.getKeyCode());
+			
+			public void keyPressed(KeyEvent e){
+				
+				if(e.getKeyCode()==e.VK_LEFT){
+					onMove(Move.LEFT);
+					
+				}
+				if(e.getKeyCode()==e.VK_RIGHT){
+					onMove(Move.RIGHT);
+				}
+				if(e.getKeyCode()==e.VK_UP){
+					onMove(Move.UP);
+				}
+				if(e.getKeyCode()==e.VK_DOWN){
+					onMove(Move.DOWN);
+				}
+				redraw();
 			}
 		});
 		
@@ -426,6 +442,8 @@ public abstract class GUI {
 		frame.add(split, BorderLayout.CENTER);
 		
 		frame.pack();
+		drawing.setFocusable(true);
+	    drawing.requestFocus();
 		frame.setVisible(true);
 		
 	} //End of Init()

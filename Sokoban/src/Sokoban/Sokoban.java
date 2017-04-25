@@ -57,8 +57,6 @@ public class Sokoban extends GUI{
 		
 		if(m==Move.DOWN){
 			dir=Direction.SOUTH;
-			System.out.println(p.getyPos());
-			System.out.println(getFrame().getHeight());
 			if(p.getyPos()<=getFrame().getHeight()-(imageHeight+211)){
 				p.setyPos(p.getyPos()+10);
 			}
