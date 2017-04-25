@@ -1,0 +1,74 @@
+package gui;
+
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
+import javax.swing.JPanel;
+
+import logic.Card;
+import logic.Player;
+
+public class HandCanvas extends JPanel {
+	private Player currentPlayer;
+	private int roll;
+	private boolean currentSuggestion = false;
+	private List<Card> cards;
+	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		Font font1 = new Font("TimesRoman",Font.PLAIN,15);
+		g.setFont(font1);
+		if(currentPlayer == null){
+			g.drawString("This is where cards are shown", 100,62 );
+			g.drawString("You need to start the game!!!", 100,82 );
+		}else if(!currentSuggestion){
+			g.setFont(new Font("TimesRoman",Font.BOLD,20));
+			g.drawString(currentPlayer.name() + " it is your turn, here are your cards", 100, 20);
+			Set<Card> hand = currentPlayer.hand();
+			g.setFont(font1);
+			int x = 5;
+			int y = 30;
+			for(Card c : hand){
+				g.drawImage(c.getPicture(), x, y, null);
+				x = x + getWidth()/hand.size();
+			}
+			
+			g.drawString("Dice Roll: ",169 ,160 );
+			if(roll == 0){
+				g.drawString("Need To Roll Dice",234 ,160 );
+			}else{
+				g.drawString(String.valueOf(roll), 234, 160);
+			}
+			
+		}else{
+			g.setFont(new Font("TimesRoman",Font.BOLD,15));
+			String message = currentPlayer.name() + " has accused " + 
+					cards.get(0).getName() + " with the " + cards.get(1).getName() + 
+						" in the " + cards.get(2).getName();
+			g.drawString(message, 5, 20);
+			int x = 5;
+			int y = 30;
+			for(Card c : cards){
+				g.drawImage(c.getPicture(), x, y, null);
+				x = x + getWidth()/cards.size();
+			}
+		}
+	}
+	
+	public void updateHand(Player player,int roll){
+		currentSuggestion = false;
+		currentPlayer = player;
+		this.roll = roll;
+	}
+	public void setSuggestionCards(Card c,Card w,Card r){
+		currentSuggestion = true;
+		cards = new ArrayList<Card>();
+		cards.add(c);
+		cards.add(w);
+		cards.add(r);
+		
+	}
+}

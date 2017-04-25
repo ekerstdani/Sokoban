@@ -1,9 +1,8 @@
 package Sokoban;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.GridLayout;
+import javax.swing.*;
+
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -19,8 +18,10 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
@@ -36,10 +37,11 @@ public abstract class GUI {
 
 	//GUI Default Height and Width
 	private static final int DEFULT_DRAWING_HEIGHT = 600;
-	private static final int DEFULT_DRAWING_WIDTH = 800;
+	private static final int DEFULT_DRAWING_WIDTH = 950;
 	private static final int TEXT_OUTPUT_ROWS = 5;
 	private static int imageWidth = 35;
 	private static int imageHeight = 40;
+	private static boolean editorMode=false;
 	
 	//Variables for the GUI
 	private JFrame frame;
@@ -91,6 +93,7 @@ public abstract class GUI {
 	
 	protected abstract void onMove(Move m);
 	protected abstract void changeName();
+	protected abstract void setGround(String s);
 	
 	public void redraw(){
 		frame.repaint();
@@ -151,10 +154,7 @@ public abstract class GUI {
 				int dialogButton = JOptionPane.YES_NO_OPTION;
 				int dialogResult = JOptionPane.showConfirmDialog(frame, "Are you sure you want to restart", "Restart", dialogButton);
 				if(dialogResult == 0) {
-					frame.removeAll();
-		            frame.validate();
-		            frame.setVisible(false);
-		            initialise();
+					restart();
 					
 				}
 			}
@@ -174,6 +174,8 @@ public abstract class GUI {
 			public void actionPerformed(ActionEvent e) {
 				onMove(Move.LEFT);
 				redraw();
+				drawing.setFocusable(true);
+			    drawing.requestFocus();
 			}
 		});
 		
@@ -185,6 +187,8 @@ public abstract class GUI {
 			public void actionPerformed(ActionEvent e) {
 				onMove(Move.RIGHT);
 				redraw();
+				drawing.setFocusable(true);
+			    drawing.requestFocus();
 			}
 		});
 		
@@ -196,6 +200,8 @@ public abstract class GUI {
 			public void actionPerformed(ActionEvent e) {
 				onMove(Move.UP);
 				redraw();
+				drawing.setFocusable(true);
+			    drawing.requestFocus();
 			}
 		});
 		
@@ -207,11 +213,13 @@ public abstract class GUI {
 			public void actionPerformed(ActionEvent e) {
 				onMove(Move.DOWN);
 				redraw();
+				drawing.setFocusable(true);
+			    drawing.requestFocus();
 			}
 			
 		});
 		
-		//Zoom In 
+		//Change Name
 				JButton reName = new JButton("Change Name");
 				reName.addActionListener( new ActionListener(){
 
@@ -219,17 +227,40 @@ public abstract class GUI {
 					public void actionPerformed(ActionEvent e) {
 						//CHANGE NAME TODO
 						changeName();
+						drawing.setFocusable(true);
+					    drawing.requestFocus();
 					}
 					
 				});
 		
-		//Zoom Out
+				
+				
+		 //Create the popup menu.
+        final JPopupMenu popup = new JPopupMenu();
+        popup.add(new JMenuItem(new AbstractAction("Editor Mode") {
+            public void actionPerformed(ActionEvent e) {
+            	editorMode =true;
+            	restart();
+                JOptionPane.showMessageDialog(frame, "Editor Mode selected");
+            }
+        }));
+        popup.add(new JMenuItem(new AbstractAction("Level 1") {
+            public void actionPerformed(ActionEvent e) {
+            	editorMode =false;
+            	restart();
+                JOptionPane.showMessageDialog(frame, "Level 1 selected");
+            }
+        }));		
+		
+		//Change Mode
 				JButton out = new JButton("Select Level");
-				out.addActionListener( new ActionListener(){
+				out.addMouseListener( new MouseAdapter(){
 
 					@Override
-					public void actionPerformed(ActionEvent e) {
-						//TODO
+					public void mousePressed(MouseEvent e) {
+						popup.show(e.getComponent(), e.getX(), e.getY());
+						drawing.setFocusable(true);
+					    drawing.requestFocus();
 					}
 					
 				});
@@ -247,6 +278,8 @@ public abstract class GUI {
 			@Override
 			public void mouseClicked(MouseEvent e){
 				getTextOutputArea().append("Ground Dirt Selected\n");
+				setGround("Ground_Dirt.png");
+				redraw();
 			}
 					 
 			});
@@ -258,6 +291,8 @@ public abstract class GUI {
 			@Override
 			public void mouseClicked(MouseEvent e){
 				getTextOutputArea().append("Ground Grass Selected\n");
+				setGround("Ground_Grass.png");
+				redraw();
 			}
 						 
 		 });
@@ -270,6 +305,8 @@ public abstract class GUI {
 			@Override
 			public void mouseClicked(MouseEvent e){
 				getTextOutputArea().append("Ground Sand Selected\n");
+				setGround("Ground_Sand.png");
+				redraw();
 			}
 			 
 		 });
@@ -281,6 +318,8 @@ public abstract class GUI {
 			@Override
 			public void mouseClicked(MouseEvent e){
 				getTextOutputArea().append("Ground Gravel Concrete Selected\n");
+				setGround("GroundGravel_Concrete.png");
+				redraw();
 			}
 			 
 		 });
@@ -292,6 +331,8 @@ public abstract class GUI {
 			@Override
 			public void mouseClicked(MouseEvent e){
 				getTextOutputArea().append("Ground Gravel Dirt Selected\n");
+				setGround("GroundGravel_Dirt.png");
+				redraw();
 			}
 			 
 		 });
@@ -303,6 +344,8 @@ public abstract class GUI {
 			@Override
 			public void mouseClicked(MouseEvent e){
 				getTextOutputArea().append("Ground Gravel Grass Selected\n");
+				setGround("GroundGravel_Grass.png");
+				redraw();
 			}
 			 
 		 });
@@ -315,6 +358,8 @@ public abstract class GUI {
 					@Override
 					public void mouseClicked(MouseEvent e){
 						getTextOutputArea().append("Ground Gravel Sand Selected\n");
+						setGround("GroundGravel_Sand.png");
+						redraw();
 					}
 					 
 				 });
@@ -365,19 +410,22 @@ public abstract class GUI {
 		
 		
 		//---------------------------------------
-		controls.add(groundGravelGrass);
-		controls.add(new JSeparator(SwingConstants.VERTICAL));
-		controls.add(groundDirt);
-		controls.add(new JSeparator(SwingConstants.VERTICAL));
-		controls.add(groundGrass);
-		controls.add(new JSeparator(SwingConstants.VERTICAL));
-		controls.add(groundSand);
-		controls.add(new JSeparator(SwingConstants.VERTICAL));
-		controls.add(groundGravelConcrete);
-		controls.add(new JSeparator(SwingConstants.VERTICAL));
-		controls.add(groundGravelDirt);
-		controls.add(new JSeparator(SwingConstants.VERTICAL));
-		controls.add(groundGravelSand);
+		if(editorMode==true){
+			controls.add(groundGravelGrass);
+			controls.add(new JSeparator(SwingConstants.VERTICAL));
+			controls.add(groundDirt);
+			controls.add(new JSeparator(SwingConstants.VERTICAL));
+			controls.add(groundGrass);
+			controls.add(new JSeparator(SwingConstants.VERTICAL));
+			controls.add(groundSand);
+			controls.add(new JSeparator(SwingConstants.VERTICAL));
+			controls.add(groundGravelConcrete);
+			controls.add(new JSeparator(SwingConstants.VERTICAL));
+			controls.add(groundGravelDirt);
+			controls.add(new JSeparator(SwingConstants.VERTICAL));
+			controls.add(groundGravelSand);
+		}
+		
 		
 		
 		//---------------------------------------
@@ -389,6 +437,7 @@ public abstract class GUI {
 		};
 		drawing.addKeyListener(new KeyAdapter(){
 			
+			@SuppressWarnings("static-access")
 			public void keyPressed(KeyEvent e){
 				
 				if(e.getKeyCode()==e.VK_LEFT){
@@ -433,7 +482,12 @@ public abstract class GUI {
 		split.setBottomComponent(scroll);
 		split.setEnabled(false);
 		
-		frame = new JFrame("Sokoban");
+		if(editorMode==true)
+			frame = new JFrame("Sokoban Editor Mode");
+		
+		else
+			frame = new JFrame("Sokoban");
+		
 		
 		//Makes program actually quit when button pressed
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -451,6 +505,13 @@ public abstract class GUI {
 	
 	public JFrame getFrame(){
 		return frame;
+	}
+	
+	public void restart(){
+		frame.removeAll();
+        frame.validate();
+        frame.setVisible(false);
+        initialise();
 	}
 	
 }
